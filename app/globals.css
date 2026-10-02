@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-display), sans-serif;
+  --font-sans: var(--font-sans), sans-serif;
+  --font-mono: var(--font-mono), monospace;
+}
+
+@layer base {
+  :root {
+    --kheops-charcoal: #090909;
+    --kheops-deep: #151515;
+    --kheops-white: #FFFFFF;
+    --kheops-offwhite: #F3F1EB;
+    --kheops-concrete: #A5A5A0;
+    --kheops-steel: #565A5C;
+    --kheops-gold: #EEB149;
+  }
+
+  html {
+    background-color: #090909;
+    color: #FFFFFF;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  ::selection {
+    background-color: #EEB149;
+    color: #090909;
+  }
+
+  /* High-contrast accessible keyboard focus ring */
+  :focus-visible {
+    outline: 2px solid #EEB149;
+    outline-offset: 3px;
+  }
+}
+
+/* Subtle architectural blueprint grid background */
+.bg-blueprint-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(86, 90, 92, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(86, 90, 92, 0.14) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.bg-blueprint-grid-light {
+  background-image:
+    linear-gradient(to right, rgba(86, 90, 92, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(86, 90, 92, 0.12) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* 3D Book Mockup Perspective Utilities */
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Marquee / Ticker animations */
+@keyframes kheops-marquee-left {
+  0% {
+    transform: translate3d(0%, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes kheops-marquee-right {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0%, 0, 0);
+  }
+}
+
+.animate-marquee-left {
+  animation: kheops-marquee-left 38s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: kheops-marquee-right 42s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation: none !important;
+    transform: none !important;
+  }
+}

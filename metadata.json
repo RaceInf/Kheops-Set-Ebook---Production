@@ -1,0 +1,6 @@
+{
+  "name": "Kheops Set — Le Capital du Bâtisseur",
+  "description": "Marque éditoriale anonyme. Outils de réflexion et d'ingénierie financière pour reprendre le contrôle de ton argent, de ton temps et de tes décisions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
