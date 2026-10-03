@@ -1,14 +1,13 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { FeaturedBookCard } from '@/components/products/FeaturedBookCard';
-import { PreviewReaderProvider } from '@/components/products/PreviewReaderProvider';
-import { PreviewReaderButton } from '@/components/products/PreviewReaderButton';
-import { PreviewReaderContainer } from '@/components/products/PreviewReaderContainer';
+import { BookPreviewReader } from '@/components/products/BookPreviewReader';
 import { FAQSection } from '@/components/home/faq-section';
 import {
   getProductBySlug,
@@ -21,6 +20,8 @@ import {
   IconBlueprint,
   IconCheck,
 } from '@/components/icons/kheops-icons';
+import { serializeJsonLd } from '@/lib/structured-data';
+import { getValidSiteUrl } from '@/lib/safe-url';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -73,7 +74,11 @@ export default async function EbookProductPage({ params }: PageProps) {
 
   const checkoutUrl = getChariowCheckoutUrl(ebook.chariowUrl, ebook.slug);
   const priceInfo = calculatePriceInfo(ebook);
-  const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || 'https://kheopsset.com';
+  const appUrl = getValidSiteUrl(
+    process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL
+  )
+    .toString()
+    .replace(/\/$/, '');
 
   const relatedProducts = ebook.relatedEbooks
     .map((relSlug) => getProductBySlug(relSlug))
@@ -144,17 +149,16 @@ export default async function EbookProductPage({ params }: PageProps) {
     <div className="min-h-screen flex flex-col bg-[#090909] text-[#FFFFFF]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <Navbar />
 
       <main className="flex-1 pt-28 pb-24">
         <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 space-y-12">
-          <PreviewReaderProvider>
-            {/* Breadcrumbs */}
-            <nav aria-label="Fil d'Ariane" className="font-mono text-xs text-[#A5A5A0]">
-              <ol className="flex flex-wrap items-center gap-2">
+          {/* Breadcrumbs */}
+          <nav aria-label="Fil d'Ariane" className="font-mono text-xs text-[#A5A5A0]">
+            <ol className="flex flex-wrap items-center gap-2">
               <li>
                 <Link href="/" className="hover:text-[#FFFFFF] transition-colors">
                   Accueil
@@ -196,11 +200,14 @@ export default async function EbookProductPage({ params }: PageProps) {
                     className="absolute top-0 left-0 right-0 h-[2px] bg-[#EEB149]"
                   />
                   <div className="absolute inset-0 z-0 opacity-85">
-                    <img
+                    <Image
                       src={ebook.coverImage}
                       alt={ebook.coverAlt}
+                      fill
+                      priority
+                      sizes="(max-width: 640px) 250px, 290px"
                       referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover object-center"
+                      className="object-cover object-center"
                     />
                     <div
                       aria-hidden="true"
@@ -229,7 +236,12 @@ export default async function EbookProductPage({ params }: PageProps) {
               </div>
 
               {ebook.previewPages && ebook.previewPages.length > 0 && (
-                <PreviewReaderButton pageCount={ebook.previewPages.length} />
+                <a
+                  href="#apercu-liseuse"
+                  className="mt-6 w-full py-3 px-4 border border-[#EEB149]/60 bg-[#090909] text-center font-mono text-xs font-semibold text-[#EEB149] hover:bg-[#EEB149] hover:text-[#090909] transition-colors"
+                >
+                  FEUILLETER UN EXTRAIT ({ebook.previewPages.length} PAGES)
+                </a>
               )}
             </div>
 
@@ -422,7 +434,11 @@ export default async function EbookProductPage({ params }: PageProps) {
           </section>
 
           {/* Liseuse d'aperçu interactive (non téléchargeable avec filigrane central KHEOPS SET) */}
-          <PreviewReaderContainer product={ebook} />
+          {ebook.previewPages && ebook.previewPages.length > 0 && (
+            <div className="py-12 border-b border-[#565A5C]/35">
+              <BookPreviewReader product={ebook} id="apercu-liseuse" />
+            </div>
+          )}
 
           {/* Extrait authentique du livre */}
           {ebook.excerpt && (
@@ -468,7 +484,6 @@ export default async function EbookProductPage({ params }: PageProps) {
               </div>
             </section>
           )}
-          </PreviewReaderProvider>
         </div>
 
         {/* Product FAQ */}

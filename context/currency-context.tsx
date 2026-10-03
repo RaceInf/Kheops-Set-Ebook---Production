@@ -29,20 +29,22 @@ const STORAGE_KEY = 'kheops_preferred_currency';
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined);
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
+  // Toujours initialiser à 'XAF' côté serveur et client initial pour éviter tout Hydration Mismatch
   const [currency, setCurrencyState] = useState<CurrencyCode>('XAF');
   const [rates, setRates] = useState<CurrencyRates>(DEFAULT_RATES);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
-      if (saved && ['XAF', 'EUR', 'USD'].includes(saved)) {
-        setCurrencyState(saved);
-      } else if (saved) {
-        window.localStorage.setItem(STORAGE_KEY, 'XAF');
+    // Synchroniser la devise enregistrée après l'hydratation initiale propre
+    const frameId = requestAnimationFrame(() => {
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
+        if (saved && ['XAF', 'EUR', 'USD'].includes(saved)) {
+          setCurrencyState(saved);
+        }
+      } catch {
+        // Ignore storage access issues
       }
-    } catch {
-      // Ignore storage access issues
-    }
+    });
 
     let isMounted = true;
     fetch('/api/rates')
@@ -57,6 +59,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       });
 
     return () => {
+      cancelAnimationFrame(frameId);
       isMounted = false;
     };
   }, []);

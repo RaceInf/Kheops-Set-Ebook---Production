@@ -8,11 +8,24 @@ import { ProductUpsellCards } from '@/components/products/ProductUpsellCards';
 import { PageImmersion } from '@/components/animations/page-immersion';
 
 export const metadata: Metadata = {
-  title: 'Le Protocole d’Isolation — Outil de Haute Qualité pour Bâtisseurs Épuisés | Kheops Set',
+  title: 'Le Protocole du Bâtisseur — Guide Gratuit PDF | Kheops Set',
   description:
-    'Une fiche tactique en 3 étapes (6 pages PDF) pour arrêter l’hémorragie d’énergie, poser un Non de Bâtisseur et assainir ton entourage.',
+    'Télécharge Le Protocole du Bâtisseur : un guide PDF simple pour protéger ton attention, poser des limites et mieux choisir tes priorités.',
   alternates: {
     canonical: '/ressource-gratuite',
+  },
+  openGraph: {
+    title: 'Le Protocole du Bâtisseur — Guide Gratuit PDF | Kheops Set',
+    description:
+      'Télécharge Le Protocole du Bâtisseur : un guide PDF simple pour protéger ton attention, poser des limites et mieux choisir tes priorités.',
+    url: '/ressource-gratuite',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Le Protocole du Bâtisseur — Guide Gratuit PDF | Kheops Set',
+    description:
+      'Télécharge Le Protocole du Bâtisseur : un guide PDF simple pour protéger ton attention, poser des limites et mieux choisir tes priorités.',
   },
 };
 

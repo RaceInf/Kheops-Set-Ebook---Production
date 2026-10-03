@@ -14,9 +14,24 @@ import { FAQSection } from '@/components/home/faq-section';
 import { FinalCTASection } from '@/components/home/final-cta-section';
 import { Footer } from '@/components/layout/footer';
 import { MAIN_EBOOK, HOME_FAQ_ITEMS, getChariowCheckoutUrl } from '@/lib/ebooks-data';
+import {
+  serializeJsonLd,
+  buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
+  buildFaqJsonLd,
+} from '@/lib/structured-data';
+import { getValidSiteUrl } from '@/lib/safe-url';
 
 export default function HomePage() {
+  const appUrl = getValidSiteUrl(
+    process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL
+  )
+    .toString()
+    .replace(/\/$/, '');
+
   const structuredData = [
+    buildOrganizationJsonLd(appUrl),
+    buildWebSiteJsonLd(appUrl),
     {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -34,25 +49,14 @@ export default function HomePage() {
         url: getChariowCheckoutUrl(MAIN_EBOOK.chariowUrl),
       },
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: HOME_FAQ_ITEMS.map((item) => ({
-        '@type': 'Question',
-        name: item.question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: item.answer,
-        },
-      })),
-    },
+    buildFaqJsonLd(HOME_FAQ_ITEMS),
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#090909] text-[#FFFFFF]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }}
       />
 
       {/* Navigation flottante premium avec Convertisseur de devise */}

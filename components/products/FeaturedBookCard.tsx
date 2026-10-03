@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/lib/products';
 import { getChariowCheckoutUrl } from '@/lib/products';
@@ -39,11 +40,14 @@ export function FeaturedBookCard({ product }: FeaturedBookCardProps) {
               className="absolute top-0 left-0 right-0 h-[2px] bg-[#EEB149]"
             />
             <div className="absolute inset-0 z-0 opacity-85">
-              <img
+              <Image
                 src={product.coverImage}
                 alt={product.coverAlt}
+                fill
+                loading="lazy"
+                sizes="(max-width: 640px) 96px, 112px"
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover object-center"
+                className="object-cover object-center"
               />
               <div
                 aria-hidden="true"

@@ -8,11 +8,24 @@ import { PageImmersion } from '@/components/animations/page-immersion';
 import { KHEOPS_SOCIAL_LINKS, IconArrowUpRight } from '@/components/icons/kheops-icons';
 
 export const metadata: Metadata = {
-  title: 'Contact — Kheops Set',
+  title: 'Contact — Kheops Set | Support & Suivi de Commande',
   description:
-    'Contacte l’équipe Kheops Set ou rejoins nos réseaux officiels (Facebook, Instagram, Groupe WhatsApp).',
+    'Une question sur un ebook ou une commande Chariow ? Contacte Kheops Set ou suis les prochaines parutions sur WhatsApp.',
   alternates: {
     canonical: '/contact',
+  },
+  openGraph: {
+    title: 'Contact — Kheops Set | Support & Suivi de Commande',
+    description:
+      'Une question sur un ebook ou une commande Chariow ? Contacte Kheops Set ou suis les prochaines parutions sur WhatsApp.',
+    url: '/contact',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact — Kheops Set | Support & Suivi de Commande',
+    description:
+      'Une question sur un ebook ou une commande Chariow ? Contacte Kheops Set ou suis les prochaines parutions sur WhatsApp.',
   },
 };
 

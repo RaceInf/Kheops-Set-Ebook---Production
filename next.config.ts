@@ -1,18 +1,55 @@
 import type { NextConfig } from 'next';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 /**
- * Note sur Content-Security-Policy :
- * - 'unsafe-inline' est requis par Next.js App Router pour l'hydratation des scripts RSC et styles Tailwind.
- * - challenges.cloudflare.com est autorisé pour le widget anti-bot Cloudflare Turnstile.
- * - frame-ancestors inclut 'self' et *.run.app / *.google.com pour permettre l'aperçu dans AI Studio tout en protégeant l'application.
+ * ==============================================================================
+ * DIRECTIVES CONTENT-SECURITY-POLICY (CSP) DU NAVIGATEUR
+ * ==============================================================================
+ *
+ * DOCUMENTATION DES DOMAINES AUTORISÉS CÔTÉ CLIENT :
+ * - default-src 'self' : Origine locale uniquement.
+ * - script-src :
+ *   - 'self' : Scripts Next.js.
+ *   - 'unsafe-inline' : Requis par Next.js App Router pour l'hydratation des scripts RSC et styles.
+ *   - 'unsafe-eval' : Autorisé uniquement en développement (Fast Refresh). STRICTEMENT RETIRÉ en production.
+ *   - https://challenges.cloudflare.com : Script du widget anti-bot Cloudflare Turnstile.
+ *   - https://www.googletagmanager.com : Google Analytics 4 (si activé).
+ *   - https://www.clarity.ms : Microsoft Clarity (si activé).
+ * - style-src :
+ *   - 'self' 'unsafe-inline' : Styles Tailwind CSS et styles de composants.
+ *   - https://fonts.googleapis.com : Polices Google Fonts.
+ * - img-src :
+ *   - 'self' data: blob: : Assets locaux, icônes SVG et placeholders.
+ *   - https://picsum.photos : Illustrations de maquettes.
+ *   - https://drive.google.com & https://*.googleusercontent.com : Prévisualisation des couvertures.
+ * - font-src :
+ *   - 'self' data: https://fonts.gstatic.com : Polices typographiques.
+ * - connect-src :
+ *   - 'self' : Appels aux routes API locales (/api/newsletter, /api/contact, /api/rates, etc.).
+ *   - https://challenges.cloudflare.com : Vérification du widget Turnstile.
+ *   - https://www.google-analytics.com : Collecte anonyme des événements GA4.
+ *   - https://www.clarity.ms : Collecte anonyme des sessions Microsoft Clarity.
+ *   NOTE CRITIQUE : https://api.brevo.com et https://*.upstash.io sont STRICTEMENT EXCLUS
+ *   du navigateur car ils ne sont sollicités que côté serveur.
+ * - frame-src :
+ *   - 'self' https://challenges.cloudflare.com : Iframe du challenge Turnstile.
+ * - frame-ancestors :
+ *   - 'self' https://*.run.app https://*.google.com https://aistudio.google.com : Prévisualisation AI Studio.
+ * - form-action 'self' : Formulaires internes uniquement.
+ * - base-uri 'self', object-src 'none'.
  */
+const scriptSrc = isProd
+  ? "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms";
+
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' data: blob: https://picsum.photos",
+  "img-src 'self' data: blob: https://picsum.photos https://drive.google.com https://*.googleusercontent.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' https://challenges.cloudflare.com https://open.er-api.com https://www.google-analytics.com https://www.clarity.ms",
+  "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://www.clarity.ms",
   "frame-src 'self' https://challenges.cloudflare.com",
   "frame-ancestors 'self' https://*.run.app https://*.google.com https://aistudio.google.com",
   "form-action 'self'",
@@ -62,24 +99,12 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups',
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
           },
         ],
       },
     ];
-  },
-  webpack: (config, { dev }) => {
-    if (dev && process.env.DISABLE_HMR === 'true') {
-      config.watchOptions = {
-        ignored: /.*/,
-      };
-    }
-    return config;
   },
 };
 

@@ -34,7 +34,7 @@ export function HeroSplit() {
   const rightPaneRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
 
-  // Percentage allocated to Right (Plan B) on desktop: starts at 46% (left slightly dominant), expands to 74% on scroll
+  // Percentage allocated to Right (Plan B) on desktop: starts at 48%, expands to 74% on scroll
   const [rightShare, setRightShare] = useState<number>(48);
   const { formatPrice, currency } = useCurrency();
   const checkoutUrl = getChariowCheckoutUrl();
@@ -45,8 +45,8 @@ export function HeroSplit() {
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
-      setRightShare(62);
-      return;
+      const frame = requestAnimationFrame(() => setRightShare(62));
+      return () => cancelAnimationFrame(frame);
     }
 
     gsap.registerPlugin(ScrollTrigger);

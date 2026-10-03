@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { AVAILABLE_PRODUCTS, calculatePriceInfo, getChariowCheckoutUrl } from '@/lib/products';
 import { useCurrency } from '@/context/currency-context';
@@ -49,12 +50,15 @@ export function ProductUpsellCards() {
                 className="group relative w-full bg-[#090909] bg-blueprint-grid-dark border-b border-[#565A5C]/40 p-6 sm:p-8 flex items-center justify-center overflow-hidden"
               >
                 {/* Ambient background photo preview */}
-                <img
+                <Image
                   src={product.coverImage}
                   alt=""
                   aria-hidden="true"
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   referrerPolicy="no-referrer"
-                  className="absolute inset-0 w-full h-full object-cover object-center opacity-20 scale-105 transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover object-center opacity-20 scale-105 transition-transform duration-500 group-hover:scale-110"
                 />
                 <div
                   aria-hidden="true"
@@ -68,11 +72,14 @@ export function ProductUpsellCards() {
                     className="absolute top-0 left-0 right-0 h-[2px] bg-[#EEB149]"
                   />
                   {/* High-visibility Ebook Photo */}
-                  <img
+                  <Image
                     src={product.coverImage}
                     alt={product.coverAlt}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 640px) 170px, 190px"
                     referrerPolicy="no-referrer"
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-95"
+                    className="object-cover object-center opacity-95"
                   />
                   <div
                     aria-hidden="true"

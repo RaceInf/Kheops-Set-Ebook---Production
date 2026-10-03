@@ -76,6 +76,7 @@ export interface Product {
   availability: 'InStock' | 'PreOrder' | 'ComingSoon';
   isFeatured: boolean;
   isComingSoon: boolean;
+  chariowProductId?: string;
   relatedEbooks: string[];
   price: number;
   currency: CurrencyCode;
@@ -407,6 +408,7 @@ export const CAPITAL_PRODUCT: Product = {
   availability: 'InStock',
   isFeatured: true,
   isComingSoon: false,
+  chariowProductId: process.env.CHARIOW_CAPITAL_PRODUCT_ID || 'captaldubatisseur',
   relatedEbooks: ['le-code-du-batisseur'],
   price: 7990,
   currency: 'XAF',
@@ -600,6 +602,7 @@ export const CODE_PRODUCT: Product = {
   availability: 'InStock',
   isFeatured: true,
   isComingSoon: false,
+  chariowProductId: process.env.CHARIOW_CODE_PRODUCT_ID || 'codedubatisseur',
   relatedEbooks: ['le-capital-du-batisseur'],
   price: 3995,
   currency: 'XAF',
@@ -802,3 +805,19 @@ export const FREE_PROTOCOL_RESOURCE: FreeResource = {
     invariants: [],
   },
 };
+
+/**
+ * Retrouve un produit par son ID produit Chariow (ou slug / alias).
+ */
+export function getProductByChariowId(identifier: string): Product | undefined {
+  if (!identifier) return undefined;
+  const clean = identifier.trim().toLowerCase();
+
+  return ALL_PRODUCTS.find((p) => {
+    if (p.chariowProductId && p.chariowProductId.toLowerCase() === clean) return true;
+    if (p.slug.toLowerCase() === clean) return true;
+    if (p.id.toLowerCase() === clean) return true;
+    return false;
+  });
+}
+

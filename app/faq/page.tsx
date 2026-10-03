@@ -9,11 +9,24 @@ import { FinalCTASection } from '@/components/home/final-cta-section';
 import { PageImmersion } from '@/components/animations/page-immersion';
 
 export const metadata: Metadata = {
-  title: 'FAQ — Questions Fréquentes | Kheops Set',
+  title: 'FAQ — Questions Fréquentes sur Chariow et nos Ebooks | Kheops Set',
   description:
-    'Toutes les réponses claires sur l’achat, le paiement via Chariow, la réception et la lecture de l’ebook PDF Le Capital du Bâtisseur.',
+    'Réponses sur l’achat, Chariow, la réception par email et la lecture des ebooks PDF Kheops Set sur téléphone ou ordinateur.',
   alternates: {
     canonical: '/faq',
+  },
+  openGraph: {
+    title: 'FAQ — Questions Fréquentes sur Chariow et nos Ebooks | Kheops Set',
+    description:
+      'Réponses sur l’achat, Chariow, la réception par email et la lecture des ebooks PDF Kheops Set sur téléphone ou ordinateur.',
+    url: '/faq',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FAQ — Questions Fréquentes sur Chariow et nos Ebooks | Kheops Set',
+    description:
+      'Réponses sur l’achat, Chariow, la réception par email et la lecture des ebooks PDF Kheops Set sur téléphone ou ordinateur.',
   },
 };
 

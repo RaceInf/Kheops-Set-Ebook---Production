@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { FREE_PROTOCOL_RESOURCE } from '@/lib/products';
 import { LeadCaptureForm } from '@/components/resource/LeadCaptureForm';
@@ -51,11 +52,14 @@ export function FreeResourceSection() {
                     aria-hidden="true"
                     className="absolute top-0 left-0 right-0 h-[2px] bg-[#EEB149]"
                   />
-                  <img
+                  <Image
                     src={FREE_PROTOCOL_RESOURCE.coverImage}
                     alt={FREE_PROTOCOL_RESOURCE.title}
+                    fill
+                    loading="lazy"
+                    sizes="145px"
                     referrerPolicy="no-referrer"
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-90"
+                    className="object-cover object-center opacity-90"
                   />
                   <div
                     aria-hidden="true"

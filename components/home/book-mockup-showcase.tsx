@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -230,11 +231,14 @@ export function BookMockupShowcase() {
                   />
 
                   <div className="absolute inset-0 z-0 opacity-85">
-                    <img
+                    <Image
                       src={CAPITAL_PRODUCT.coverImage}
                       alt={CAPITAL_PRODUCT.coverAlt}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 250px, 300px"
                       referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover object-center"
+                      className="object-cover object-center"
                     />
                     <div
                       aria-hidden="true"

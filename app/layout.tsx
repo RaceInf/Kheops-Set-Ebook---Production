@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import { CurrencyProvider } from '@/context/currency-context';
 import { ScrollToTopButton } from '@/components/ui/scroll-to-top-button';
+import { PrivacyAnalytics } from '@/components/analytics/PrivacyAnalytics';
+import { getValidSiteUrl } from '@/lib/safe-url';
 import './globals.css';
 
 const syne = Syne({
@@ -25,10 +27,13 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-const appUrl = process.env.APP_URL || 'https://kheopsset.com';
+const siteUrl = getValidSiteUrl(
+  process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL
+);
+const appUrlString = siteUrl.toString().replace(/\/$/, '');
 
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: siteUrl,
   title: 'Kheops Set — Le Capital du Bâtisseur | Outils de Décision',
   description:
     'Marque éditoriale anonyme. Découvre Le Capital du Bâtisseur (49 pages PDF) pour reprendre le contrôle de ton argent, de ton temps et de tes décisions.',
@@ -39,7 +44,7 @@ export const metadata: Metadata = {
     title: 'Kheops Set — Le Capital du Bâtisseur | Outils de Décision',
     description:
       'Un guide de 49 pages pour arrêter de subir tes choix financiers et commencer à construire une base solide. Paiement et accès via Chariow.',
-    url: appUrl,
+    url: appUrlString,
     siteName: 'Kheops Set',
     locale: 'fr_FR',
     type: 'website',
@@ -76,6 +81,7 @@ export default function RootLayout({
         className="font-sans bg-[#090909] text-[#FFFFFF] antialiased selection:bg-[#EEB149] selection:text-[#090909]"
       >
         <CurrencyProvider>
+          <PrivacyAnalytics />
           {children}
           <ScrollToTopButton />
         </CurrencyProvider>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getClientIp, parseSafeJsonBody, sanitizePlainText } from '@/lib/security';
 import { checkServerRateLimit } from '@/lib/rateLimit';
+import { verifyTurnstileToken } from '@/lib/turnstile';
+import { requireContactConfig } from '@/lib/env/server';
 
 const contactSchema = z
   .object({
@@ -26,11 +28,40 @@ const contactSchema = z
       .trim()
       .min(10, { message: 'Ton message doit contenir au moins 10 caractères.' })
       .max(3000),
+    turnstileToken: z.string().min(1, {
+      message: 'La vérification de sécurité a échoué. Réessaie dans quelques instants.',
+    }),
     website: z.string().max(0).optional(), // Honeypot anti-spam
   })
   .strict();
 
 export async function POST(req: NextRequest) {
+  // 1. Vérification stricte des variables serveur requises via requireContactConfig()
+  const configResult = requireContactConfig();
+  if (!configResult.isConfigured) {
+    if (configResult.isProduction) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Le service est temporairement indisponible. Réessaie dans quelques instants.',
+        },
+        { status: 503 }
+      );
+    }
+
+    // En développement local : retour explicite HTTP 503 (aucun faux succès)
+    return NextResponse.json(
+      {
+        ok: false,
+        code: 'SERVICE_NOT_CONFIGURED',
+        error: 'Service de contact non configuré en local.',
+        devNotice:
+          'Simulation locale : le service n’est pas configuré. Aucune donnée n’a été envoyée.',
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     const bodyResult = await parseSafeJsonBody<Record<string, unknown>>(req);
     if (!bodyResult.ok) {
@@ -70,6 +101,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: firstError }, { status: 400 });
     }
 
+    // Vérification du token Cloudflare Turnstile côté serveur
+    const turnstileCheck = await verifyTurnstileToken(
+      parsed.data.turnstileToken,
+      ip
+    );
+    if (!turnstileCheck.success) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'La vérification de sécurité a échoué. Réessaie dans quelques instants.',
+        },
+        { status: 400 }
+      );
+    }
+
     // Nettoyage anti-XSS côté serveur
     const _sanitizedPayload = {
       name: sanitizePlainText(parsed.data.name),
@@ -84,15 +130,8 @@ export async function POST(req: NextRequest) {
     });
   } catch {
     return NextResponse.json(
-      {
-        ok: false,
-        error: 'Impossible de traiter la demande pour le moment.',
-      },
+      { ok: false, error: 'Impossible d’envoyer le message pour le moment.' },
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  return NextResponse.json({ error: 'Méthode non autorisée.' }, { status: 405 });
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { TurnstileField } from '@/components/resource/TurnstileField';
 
 export function ContactForm() {
   const [name, setName] = useState('');
@@ -8,11 +9,29 @@ export function ContactForm() {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [website, setWebsite] = useState(''); // Honeypot
+  const [turnstileToken, setTurnstileToken] = useState('dev-turnstile-token');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [feedback, setFeedback] = useState('');
 
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken('');
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!turnstileToken) {
+      setStatus('error');
+      setFeedback(
+        'La vérification de sécurité ne s’est pas chargée. Désactive temporairement ton bloqueur de contenu, puis réessaie.'
+      );
+      return;
+    }
+
     setStatus('loading');
     setFeedback('');
 
@@ -26,6 +45,7 @@ export function ContactForm() {
           subject,
           message,
           website,
+          turnstileToken,
         }),
       });
 
@@ -139,6 +159,14 @@ export function ContactForm() {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Explique ta demande avec précision..."
           className="w-full px-4 py-3 bg-[#090909] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none resize-y"
+        />
+      </div>
+
+      {/* Cloudflare Turnstile anti-bot field */}
+      <div className="pt-1">
+        <TurnstileField
+          onVerify={handleTurnstileVerify}
+          onExpire={handleTurnstileExpire}
         />
       </div>
 

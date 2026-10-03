@@ -8,11 +8,24 @@ import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
 import { IconCheck } from '@/components/icons/kheops-icons';
 
 export const metadata: Metadata = {
-  title: 'À propos de Kheops Set — L’Acier Bienveillant',
+  title: 'À propos de Kheops Set — La Philosophie de l’Acier Bienveillant',
   description:
-    'Kheops Set est une marque éditoriale anonyme. Découvre la philosophie de L’Acier Bienveillant : structure, limites, capital et actes.',
+    'Découvre Kheops Set : des outils clairs pour structurer ton temps, protéger ton argent et construire des décisions qui durent.',
   alternates: {
     canonical: '/a-propos',
+  },
+  openGraph: {
+    title: 'À propos de Kheops Set — La Philosophie de l’Acier Bienveillant',
+    description:
+      'Découvre Kheops Set : des outils clairs pour structurer ton temps, protéger ton argent et construire des décisions qui durent.',
+    url: '/a-propos',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'À propos de Kheops Set — La Philosophie de l’Acier Bienveillant',
+    description:
+      'Découvre Kheops Set : des outils clairs pour structurer ton temps, protéger ton argent et construire des décisions qui durent.',
   },
 };
 

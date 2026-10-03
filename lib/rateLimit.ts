@@ -1,18 +1,18 @@
-interface RateLimitRecord {
-  count: number;
-  resetAt: number;
-}
+import { Redis } from '@upstash/redis';
+import { Ratelimit } from '@upstash/ratelimit';
+import { logger } from '@/lib/logger';
 
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
 }
 
-const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
-const DEFAULT_MAX_ATTEMPTS = 5;
-
-// Stockage mémoire local pour le développement ou fallback sans Redis
-const localMemoryStore = new Map<string, RateLimitRecord>();
+// Map locale de secours en mémoire réservée STRICTEMENT au développement local
+interface MemoryRecord {
+  count: number;
+  resetAt: number;
+}
+const localMemoryStore = new Map<string, MemoryRecord>();
 
 function cleanupExpiredRecords(now: number) {
   if (localMemoryStore.size < 500) return;
@@ -23,65 +23,107 @@ function cleanupExpiredRecords(now: number) {
   }
 }
 
+let upstashRedisClient: Redis | null = null;
+const ratelimitInstances = new Map<string, Ratelimit>();
+
+function getUpstashClient(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token || url.trim() === '' || token.trim() === '') {
+    return null;
+  }
+
+  if (!upstashRedisClient) {
+    upstashRedisClient = new Redis({
+      url,
+      token,
+    });
+  }
+
+  return upstashRedisClient;
+}
+
+function getRatelimit(namespace: string, maxAttempts: number, windowSeconds: number): Ratelimit | null {
+  const redis = getUpstashClient();
+  if (!redis) return null;
+
+  const key = `${namespace}:${maxAttempts}:${windowSeconds}`;
+  if (!ratelimitInstances.has(key)) {
+    const limiter = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(maxAttempts, `${windowSeconds} s`),
+      prefix: `kheops:ratelimit:${namespace}`,
+      analytics: false,
+    });
+    ratelimitInstances.set(key, limiter);
+  }
+
+  return ratelimitInstances.get(key) || null;
+}
+
 /**
- * Vérifie la limite de requêtes par IP côté serveur (par défaut : 5 tentatives / 15 minutes).
- * Compatible avec Upstash Redis / Vercel KV (via REST API) si KV_REST_API_URL est défini,
- * sinon bascule proprement sur le store mémoire serveur.
+ * Vérifie le rate limiting par IP avec @upstash/ratelimit et @upstash/redis.
+ *
+ * RÈGLE DE PRODUCTION :
+ * En production, Upstash Redis est obligatoire. Aucun fallback mémoire n'est
+ * utilisé en production afin d'éviter le contournement du rate limiting entre instances serverless.
+ * Le fallback mémoire est réservé EXCLUSIVEMENT au développement local.
  */
 export async function checkServerRateLimit(
   namespace: 'newsletter' | 'contact' | 'checkout' | 'webhook',
   ip: string,
-  maxAttempts: number = DEFAULT_MAX_ATTEMPTS,
-  windowMs: number = FIFTEEN_MINUTES_MS
+  maxAttempts: number = 5,
+  windowMs: number = 15 * 60 * 1000
 ): Promise<RateLimitResult> {
-  const secretSalt = process.env.RATE_LIMIT_SECRET || 'kheops-default-salt';
-  const bucketKey = `rl:${namespace}:${secretSalt.slice(0, 8)}:${ip}`;
-  const now = Date.now();
+  const isProduction = process.env.NODE_ENV === 'production';
+  const windowSeconds = Math.max(1, Math.ceil(windowMs / 1000));
+  const ratelimiter = getRatelimit(namespace, maxAttempts, windowSeconds);
 
-  // Option 1 : Upstash Redis / Vercel KV REST si configuré
-  const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-  if (kvUrl && kvToken) {
+  if (ratelimiter) {
     try {
-      const windowSeconds = Math.ceil(windowMs / 1000);
-      const incrResponse = await fetch(`${kvUrl}/incr/${encodeURIComponent(bucketKey)}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${kvToken}`,
-        },
-        cache: 'no-store',
+      const identifier = `${namespace}:${ip || '127.0.0.1'}`;
+      const result = await ratelimiter.limit(identifier);
+
+      return {
+        allowed: result.success,
+        remaining: result.remaining,
+      };
+    } catch (err) {
+      logger.error({
+        event: 'upstash_ratelimit_error',
+        source: namespace,
+        message: err instanceof Error ? err.message : 'Erreur connectivité Upstash',
       });
 
-      if (incrResponse.ok) {
-        const data = (await incrResponse.json()) as { result?: number };
-        const currentCount = typeof data.result === 'number' ? data.result : 1;
-
-        if (currentCount === 1) {
-          await fetch(
-            `${kvUrl}/expire/${encodeURIComponent(bucketKey)}/${windowSeconds}`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${kvToken}`,
-              },
-              cache: 'no-store',
-            }
-          );
-        }
-
+      if (isProduction) {
+        // En production : refuser de servir pour éviter les abus sans rate limiting distribué
         return {
-          allowed: currentCount <= maxAttempts,
-          remaining: Math.max(0, maxAttempts - currentCount),
+          allowed: false,
+          remaining: 0,
         };
       }
-    } catch {
-      // Repli silencieux sur le store mémoire en cas d'indisponibilité réseau KV
     }
   }
 
-  // Option 2 : Fallback mémoire serveur
+  // En production, si Upstash n'est pas configuré, rejet strict
+  if (isProduction) {
+    logger.error({
+      event: 'production_missing_upstash_ratelimit',
+      source: namespace,
+      message: 'Upstash Redis non configuré en production pour le rate limiting',
+    });
+    return {
+      allowed: false,
+      remaining: 0,
+    };
+  }
+
+  // Fallback mémoire local réservé UNIQUEMENT au développement local (NODE_ENV !== 'production')
+  const now = Date.now();
   cleanupExpiredRecords(now);
+
+  const bucketKey = `${namespace}:${ip || '127.0.0.1'}`;
   const existing = localMemoryStore.get(bucketKey);
 
   if (!existing || now > existing.resetAt) {

@@ -7,8 +7,10 @@ export type KheopsAnalyticsEvent =
   | 'facebook_follow_clicked'
   | 'view_thank_you_page'
   | 'view_product'
+  | 'begin_checkout'
   | 'click_buy_chariow'
   | 'currency_changed'
+  | 'contact_form_submitted'
   | 'coming_soon_waitlist_submitted';
 
 // Liste stricte des clés de métadonnées autorisées (aucune donnée personnelle)
