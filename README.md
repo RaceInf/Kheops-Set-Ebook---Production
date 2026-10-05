@@ -31,7 +31,7 @@ Dans le tableau de bord Vercel (**Settings** > **Environment Variables**) :
 
 | Variable | Type | Environnement | Service | Statut | Où l'obtenir ? |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_SITE_URL` | Publique | Dev, Preview, Prod | Next.js / SEO | Obligatoire (Prod) | Domaine officiel Vercel / registrar (ex: `https://kheopsset.com`) |
+| `NEXT_PUBLIC_SITE_URL` | Publique | Dev, Preview, Prod | Next.js / SEO | Obligatoire (Prod) | Domaine officiel Vercel actuel : `https://kheops-set-ebook-mu.vercel.app` |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Publique | Dev, Preview, Prod | Cloudflare Turnstile | Obligatoire | Dashboard Cloudflare > Turnstile > Add site |
 | `NEXT_PUBLIC_GA_ID` | Publique | Prod | Google Analytics 4 | Facultative | Google Analytics > Administration > Flux de données (`G-XXXXX`) |
 | `NEXT_PUBLIC_CLARITY_ID` | Publique | Prod | Microsoft Clarity | Facultative | Dashboard Microsoft Clarity > Settings (`xxxxxxx`) |
@@ -88,3 +88,22 @@ Pour éliminer les accès directs non vérifiés à `process.env`, les routes AP
    - Format : PDF (guide gratuit)
    - Sous-titre : *« Une fiche simple pour voir ce qui vide ton temps, ton argent et ton attention. »*
    - Redirection après inscription vers `/merci?ressource=protocole-du-batisseur`.
+
+---
+
+## 5. Configuration du Domaine & Migration Future
+
+### Domaine Officiel Actuel (Production)
+L'URL officielle active et vérifiée est :
+**`https://kheops-set-ebook-mu.vercel.app`**
+
+Toutes les fonctionnalités SEO (`metadataBase`, `canonical`, `sitemap.xml`, `robots.txt`, Open Graph, JSON-LD) et la sécurité (`isAllowedOrigin`) s'appuient sur cette valeur unique certifiée.
+
+### Procédure de Migration vers un Futur Domaine Personnalisé
+Lorsqu'un domaine personnalisé sera prêt à être connecté :
+1. **Vercel Settings** : Déclarer le domaine dans *Settings > Domains* et valider les DNS (CNAME / ALIAS).
+2. **Variable d'environnement** : Mettre à jour `NEXT_PUBLIC_SITE_URL` sur Vercel avec le nouveau domaine (ex: `https://kheopsset.com`).
+3. **Chariow** : Mettre à jour l'URL cible du webhook Pulse dans le dashboard Chariow vers le nouveau domaine (`https://nouveau-domaine/api/webhooks/chariow`).
+4. **Redirections 301** : Configurer la redirection permanente de l'ancien sous-domaine Vercel vers le domaine personnalisé.
+5. **Sitemap** : Next.js reconstruira automatiquement le sitemap et les URLs canoniques sans aucune modification de code.
+

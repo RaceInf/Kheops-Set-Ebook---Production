@@ -72,7 +72,8 @@ export interface Product {
   faq: ProductFAQItem[];
   seoTitle: string;
   seoDescription: string;
-  canonicalUrl: string;
+  canonicalPath: string;
+  canonicalUrl?: string;
   availability: 'InStock' | 'PreOrder' | 'ComingSoon';
   isFeatured: boolean;
   isComingSoon: boolean;
@@ -404,7 +405,7 @@ export const CAPITAL_PRODUCT: Product = {
   seoTitle: 'Le Capital du Bâtisseur — Ebook PDF (49 pages) | Kheops Set',
   seoDescription:
     'Un guide de 49 pages pour reprendre le contrôle de ton argent, de ton temps et de tes décisions. Paiement et accès via Chariow.',
-  canonicalUrl: 'https://kheopsset.com/ebooks/le-capital-du-batisseur',
+  canonicalPath: '/ebooks/le-capital-du-batisseur',
   availability: 'InStock',
   isFeatured: true,
   isComingSoon: false,
@@ -598,7 +599,7 @@ export const CODE_PRODUCT: Product = {
   seoTitle: 'Le Code du Bâtisseur — 7 Principes d’Exécution (PDF) | Kheops Set',
   seoDescription:
     'Un guide direct de 24 pages pour construire des habitudes, des limites et une discipline plus solide. Paiement et accès via Chariow.',
-  canonicalUrl: 'https://kheopsset.com/ebooks/le-code-du-batisseur',
+  canonicalPath: '/ebooks/le-code-du-batisseur',
   availability: 'InStock',
   isFeatured: true,
   isComingSoon: false,
@@ -640,7 +641,7 @@ export const AUDACE_PRODUCT: Product = {
   faq: [],
   seoTitle: 'L’Audace de transcender (Prochainement) | Kheops Set',
   seoDescription: 'Prochain ouvrage de la marque éditoriale Kheops Set.',
-  canonicalUrl: 'https://kheopsset.com/ebooks',
+  canonicalPath: '/ebooks',
   availability: 'ComingSoon',
   isFeatured: false,
   isComingSoon: true,
@@ -681,7 +682,7 @@ export const CERVEAU_PRODUCT: Product = {
   faq: [],
   seoTitle: 'Éveille le cerveau entrepreneurial (Prochainement) | Kheops Set',
   seoDescription: 'Prochain ouvrage de la marque éditoriale Kheops Set.',
-  canonicalUrl: 'https://kheopsset.com/ebooks',
+  canonicalPath: '/ebooks',
   availability: 'ComingSoon',
   isFeatured: false,
   isComingSoon: true,

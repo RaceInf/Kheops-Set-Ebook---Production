@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { OFFICIAL_SITE_URL } from '@/lib/site';
 
 /**
  * ==============================================================================
@@ -37,9 +38,9 @@ const optionalCleanString = z.preprocess((val) => {
 }, z.string().optional());
 
 const publicEnvSchema = z.object({
-  /** URL canonique du site (défaut de repli sûr : https://kheopsset.com) */
+  /** URL canonique du site (repli automatique sur OFFICIAL_SITE_URL si absent ou mal formé) */
   NEXT_PUBLIC_SITE_URL: z.preprocess(
-    (val) => sanitizeUrlString(val) || 'https://kheopsset.com',
+    (val) => sanitizeUrlString(val) || OFFICIAL_SITE_URL,
     z.string().url()
   ),
 

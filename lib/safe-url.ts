@@ -1,4 +1,5 @@
 import { publicEnv } from '@/lib/env/public';
+import { OFFICIAL_SITE_URL } from '@/lib/site';
 
 /**
  * ==============================================================================
@@ -164,7 +165,7 @@ export function getSafeInternalPath(targetPath: string, fallback: string = '/'):
  * Normalise et retourne une URL racine absolue valide
  */
 export function getValidSiteUrl(raw?: string): URL {
-  const candidate = raw || publicEnv.NEXT_PUBLIC_SITE_URL || 'https://kheopsset.com';
+  const candidate = raw || publicEnv.NEXT_PUBLIC_SITE_URL || OFFICIAL_SITE_URL;
   const clean = candidate.trim();
   const withProtocol =
     clean.startsWith('http://') || clean.startsWith('https://')
@@ -172,8 +173,13 @@ export function getValidSiteUrl(raw?: string): URL {
       : `https://${clean}`;
 
   try {
-    return new URL(withProtocol);
+    const url = new URL(withProtocol);
+    // En production, forcer le protocole sécurisé HTTPS
+    if (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') {
+      url.protocol = 'https:';
+    }
+    return url;
   } catch {
-    return new URL('https://kheopsset.com');
+    return new URL(OFFICIAL_SITE_URL);
   }
 }

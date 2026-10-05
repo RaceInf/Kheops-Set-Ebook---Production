@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     'Accède à ton Protocole du Bâtisseur ou retrouve les informations concernant ta commande Chariow.',
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 };
 

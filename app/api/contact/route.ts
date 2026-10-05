@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getClientIp, parseSafeJsonBody, sanitizePlainText } from '@/lib/security';
+import {
+  getClientIp,
+  parseSafeJsonBody,
+  sanitizePlainText,
+  isAllowedOrigin,
+} from '@/lib/security';
 import { checkServerRateLimit } from '@/lib/rateLimit';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { requireContactConfig } from '@/lib/env/server';
+
+const SAFE_TEXT_REGEX = /^[^\u0000-\u001F\u007F<>]+$/;
 
 const contactSchema = z
   .object({
@@ -11,23 +18,25 @@ const contactSchema = z
       .string()
       .trim()
       .min(2, { message: 'Merci d’indiquer ton nom (2 caractères minimum).' })
-      .max(100),
+      .max(100, { message: 'Nom trop long (100 caractères maximum).' })
+      .regex(SAFE_TEXT_REGEX, { message: 'Nom non valide.' }),
     email: z
       .string()
       .trim()
       .toLowerCase()
       .email({ message: 'Merci d’indiquer une adresse email valide.' })
-      .max(160),
+      .max(160, { message: 'Adresse email trop longue.' }),
     subject: z
       .string()
       .trim()
-      .min(3, { message: 'Merci de préciser le sujet de ton message.' })
-      .max(140),
+      .min(3, { message: 'Merci de préciser le sujet de ton message (3 caractères minimum).' })
+      .max(140, { message: 'Sujet trop long (140 caractères maximum).' })
+      .regex(SAFE_TEXT_REGEX, { message: 'Sujet non valide.' }),
     message: z
       .string()
       .trim()
       .min(10, { message: 'Ton message doit contenir au moins 10 caractères.' })
-      .max(3000),
+      .max(3000, { message: 'Ton message ne doit pas dépasser 3000 caractères.' }),
     turnstileToken: z.string().min(1, {
       message: 'La vérification de sécurité a échoué. Réessaie dans quelques instants.',
     }),
@@ -36,7 +45,80 @@ const contactSchema = z
   .strict();
 
 export async function POST(req: NextRequest) {
-  // 1. Vérification stricte des variables serveur requises via requireContactConfig()
+  // 1. Vérification méthode POST (HTTP 405)
+
+  // 2. Vérification Content-Type JSON (HTTP 400)
+  const contentType = req.headers.get('content-type');
+  if (!contentType || !contentType.toLowerCase().includes('application/json')) {
+    return NextResponse.json(
+      { ok: false, error: 'Format de requête invalide (application/json attendu).' },
+      { status: 400 }
+    );
+  }
+
+  // 3. Contrôle de taille du body (8 KB max via parseSafeJsonBody)
+
+  // 4. Rate Limiting par IP strict : 3 requêtes par 15 minutes
+  const ip = getClientIp(req);
+  const rateLimit = await checkServerRateLimit('contact', ip, 3, 15 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'Trop de tentatives. Réessaie plus tard.',
+      },
+      { status: 429 }
+    );
+  }
+
+  // 5. Lecture & parsing JSON sécurisé
+  const bodyResult = await parseSafeJsonBody<Record<string, unknown>>(req);
+  if (!bodyResult.ok) {
+    return NextResponse.json(
+      { ok: false, error: bodyResult.error || 'Veuillez vérifier les champs du formulaire.' },
+      { status: 400 }
+    );
+  }
+
+  const rawBody = bodyResult.data;
+
+  // 6. Contrôle du Honeypot silencieux
+  if (typeof rawBody.website === 'string' && rawBody.website.trim().length > 0) {
+    return NextResponse.json({
+      ok: true,
+      message: 'Merci. Ton message a bien été envoyé.',
+    });
+  }
+
+  // 7. Validation Zod stricte côté serveur
+  const parsed = contactSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    const firstError =
+      parsed.error.issues[0]?.message || 'Veuillez vérifier les champs du formulaire.';
+    return NextResponse.json({ ok: false, error: firstError }, { status: 400 });
+  }
+
+  // 8. Vérification Cloudflare Turnstile côté serveur
+  const turnstileCheck = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
+  if (!turnstileCheck.success) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'La vérification de sécurité a échoué. Réessaie dans quelques instants.',
+      },
+      { status: 400 }
+    );
+  }
+
+  // 9. Contrôle d'origine
+  if (!isAllowedOrigin(req)) {
+    return NextResponse.json(
+      { ok: false, error: 'Origine de requête non autorisée.' },
+      { status: 403 }
+    );
+  }
+
+  // 10. Vérification des prérequis de configuration serveur
   const configResult = requireContactConfig();
   if (!configResult.isConfigured) {
     if (configResult.isProduction) {
@@ -48,8 +130,6 @@ export async function POST(req: NextRequest) {
         { status: 503 }
       );
     }
-
-    // En développement local : retour explicite HTTP 503 (aucun faux succès)
     return NextResponse.json(
       {
         ok: false,
@@ -62,76 +142,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  try {
-    const bodyResult = await parseSafeJsonBody<Record<string, unknown>>(req);
-    if (!bodyResult.ok) {
-      return NextResponse.json(
-        { ok: false, error: 'Veuillez vérifier les champs du formulaire.' },
-        { status: 400 }
-      );
-    }
+  // 11. Traitement sécurisé du message (assainissement anti-XSS)
+  const _sanitizedPayload = {
+    name: sanitizePlainText(parsed.data.name),
+    email: parsed.data.email,
+    subject: sanitizePlainText(parsed.data.subject),
+    message: sanitizePlainText(parsed.data.message),
+  };
 
-    const rawBody = bodyResult.data;
+  return NextResponse.json({
+    ok: true,
+    message: 'Merci. Ton message a bien été envoyé.',
+  });
+}
 
-    // Honeypot silencieux
-    if (typeof rawBody.website === 'string' && rawBody.website.trim().length > 0) {
-      return NextResponse.json({
-        ok: true,
-        message: 'Merci. Ton message a bien été envoyé.',
-      });
-    }
-
-    const ip = getClientIp(req);
-    const rateLimit = await checkServerRateLimit('contact', ip, 5, 15 * 60 * 1000);
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: 'Trop de demandes. Réessaie dans quelques minutes.',
-        },
-        { status: 429 }
-      );
-    }
-
-    const parsed = contactSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      const firstError =
-        parsed.error.issues[0]?.message ||
-        'Veuillez vérifier les champs du formulaire.';
-      return NextResponse.json({ ok: false, error: firstError }, { status: 400 });
-    }
-
-    // Vérification du token Cloudflare Turnstile côté serveur
-    const turnstileCheck = await verifyTurnstileToken(
-      parsed.data.turnstileToken,
-      ip
-    );
-    if (!turnstileCheck.success) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: 'La vérification de sécurité a échoué. Réessaie dans quelques instants.',
-        },
-        { status: 400 }
-      );
-    }
-
-    // Nettoyage anti-XSS côté serveur
-    const _sanitizedPayload = {
-      name: sanitizePlainText(parsed.data.name),
-      email: parsed.data.email,
-      subject: sanitizePlainText(parsed.data.subject),
-      message: sanitizePlainText(parsed.data.message),
-    };
-
-    return NextResponse.json({
-      ok: true,
-      message: 'Merci. Ton message a bien été envoyé.',
-    });
-  } catch {
-    return NextResponse.json(
-      { ok: false, error: 'Impossible d’envoyer le message pour le moment.' },
-      { status: 500 }
-    );
-  }
+export async function GET() {
+  return NextResponse.json({ error: 'Méthode non autorisée.' }, { status: 405 });
 }

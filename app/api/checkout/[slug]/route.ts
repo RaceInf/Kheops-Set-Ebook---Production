@@ -4,7 +4,8 @@ import {
   calculatePriceInfo,
   getChariowCheckoutUrl,
 } from '@/lib/products';
-import { getClientIp, isAllowedExternalUrl } from '@/lib/security';
+import { getClientIp } from '@/lib/security';
+import { isAllowedExternalUrl } from '@/lib/safe-url';
 import { checkServerRateLimit } from '@/lib/rateLimit';
 
 /**

@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { TurnstileField } from '@/components/resource/TurnstileField';
+import {
+  TurnstileField,
+  type TurnstileFieldHandle,
+} from '@/components/resource/TurnstileField';
 import { EmailCaptureSuccess } from '@/components/resource/EmailCaptureSuccess';
 import type { NewsletterSource } from '@/lib/NewsletterSchema';
 import { trackEvent } from '@/lib/analytics';
@@ -27,14 +30,20 @@ export function LeadCaptureForm({
   compact = false,
 }: LeadCaptureFormProps) {
   const router = useRouter();
+  const turnstileRef = useRef<TurnstileFieldHandle>(null);
 
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState(''); // Honeypot invisible
-  const [turnstileToken, setTurnstileToken] = useState('dev-turnstile-token');
-  const [hasStarted, setHasStarted] = useState(false);
 
+  const isDev = process.env.NODE_ENV === 'development';
+  const hasSiteKey = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+  const [turnstileToken, setTurnstileToken] = useState(
+    isDev && !hasSiteKey ? 'dev-turnstile-token' : ''
+  );
+
+  const [hasStarted, setHasStarted] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -53,6 +62,16 @@ export function LeadCaptureForm({
     setTurnstileToken('');
   }, []);
 
+  const resetTurnstile = () => {
+    // En développement sans clé, conserver le token dev
+    if (isDev && !hasSiteKey) {
+      setTurnstileToken('dev-turnstile-token');
+    } else {
+      setTurnstileToken('');
+    }
+    turnstileRef.current?.reset();
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (status === 'loading') return; // Protection contre les doubles soumissions
@@ -64,7 +83,7 @@ export function LeadCaptureForm({
 
     if (trimmedName.length < 2) {
       setStatus('error');
-      setErrorMessage('Entre ton prénom.');
+      setErrorMessage('Entre ton prénom (2 caractères minimum).');
       return;
     }
 
@@ -76,36 +95,57 @@ export function LeadCaptureForm({
 
     if (!consent) {
       setStatus('error');
-      setErrorMessage('Accepte les conditions pour recevoir le guide.');
+      setErrorMessage('Accepte les conditions pour continuer.');
       return;
     }
 
     if (!turnstileToken) {
       setStatus('error');
-      setErrorMessage('Vérifie les informations saisies.');
+      setErrorMessage(
+        'La vérification de sécurité ne s’est pas chargée. Désactive temporairement ton bloqueur de contenu, puis réessaie.'
+      );
       return;
     }
 
     setStatus('loading');
 
+    // Aiguillage propre de l'endpoint selon la source
+    const endpoint =
+      source === 'protocole-du-batisseur' ? '/api/newsletter' : '/api/waitlist';
+
+    const payload =
+      source === 'protocole-du-batisseur'
+        ? {
+            firstName: trimmedName,
+            email: trimmedEmail,
+            consent: true,
+            turnstileToken,
+            website,
+          }
+        : {
+            firstName: trimmedName,
+            email: trimmedEmail,
+            consent: true,
+            bookSlug,
+            turnstileToken,
+            website,
+          };
+
     try {
-      const response = await fetch('/api/newsletter', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          firstName: trimmedName,
-          email: trimmedEmail,
-          consent: true,
-          source,
-          turnstileToken,
-          ...(bookSlug ? { bookSlug } : {}),
-          website,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data = (await response.json()) as { success?: boolean; error?: string };
+      const data = (await response.json()) as {
+        success?: boolean;
+        error?: string;
+        code?: string;
+        devNotice?: string;
+      };
 
       if (response.ok && data.success) {
         setStatus('success');
@@ -114,31 +154,45 @@ export function LeadCaptureForm({
           trackEvent('free_resource_form_submitted', {
             resource_slug: 'protocole-du-batisseur',
           });
+          if (redirectOnSuccess) {
+            router.push('/merci?ressource=protocole-du-batisseur');
+          }
         } else {
           trackEvent('coming_soon_waitlist_submitted', {
             product_slug: bookSlug || 'livres-a-venir',
           });
-        }
-
-        if (redirectOnSuccess && source === 'protocole-du-batisseur') {
-          router.push('/merci?ressource=protocole-du-batisseur');
+          resetTurnstile();
         }
       } else {
         setStatus('error');
-        setErrorMessage(
-          data.error ||
-            'Impossible d’envoyer le formulaire pour le moment. Réessaie plus tard.'
-        );
+        resetTurnstile();
+
+        if (response.status === 429) {
+          setErrorMessage('Trop de tentatives. Réessaie plus tard.');
+        } else if (response.status === 503) {
+          setErrorMessage(
+            data.devNotice ||
+              'Le service est temporairement indisponible. Réessaie dans quelques instants.'
+          );
+        } else if (response.status === 400) {
+          setErrorMessage(data.error || 'Vérifie les informations saisies.');
+        } else {
+          setErrorMessage(
+            data.error ||
+              'Le service est temporairement indisponible. Réessaie dans quelques instants.'
+          );
+        }
       }
     } catch {
       setStatus('error');
+      resetTurnstile();
       setErrorMessage(
-        'Impossible d’envoyer le formulaire pour le moment. Réessaie plus tard.'
+        'La connexion a échoué. Vérifie Internet puis réessaie.'
       );
     }
   };
 
-  if (status === 'success') {
+  if (status === 'success' && !redirectOnSuccess) {
     return (
       <EmailCaptureSuccess
         message={
@@ -151,31 +205,19 @@ export function LeadCaptureForm({
     );
   }
 
-  const formIdPrefix = bookSlug ? `waitlist-${bookSlug}` : `lead-${source}`;
+  const isSubmitDisabled = status === 'loading' || !turnstileToken;
 
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className={`bg-[#090909] text-[#FFFFFF] border border-[#565A5C]/50 ${
-        compact ? 'p-5 space-y-4' : 'p-6 sm:p-10 space-y-5'
-      }`}
+      className={`space-y-4 ${compact ? '' : 'p-6 sm:p-8 bg-[#151515] border border-[#565A5C]/40'}`}
     >
-      {!compact && (
-        <div className="border-b border-[#565A5C]/35 pb-4 flex items-center justify-between">
-          <p className="font-mono text-xs text-[#EEB149] tracking-wider">
-            ACCÈS IMMÉDIAT & GRATUIT
-          </p>
-          <span className="font-mono text-[11px] text-[#A5A5A0]">FORMAT PDF</span>
-        </div>
-      )}
-
-      {/* Honeypot invisible anti-spam */}
+      {/* Honeypot invisible pour neutraliser les robots */}
       <div className="hidden" aria-hidden="true">
-        <label htmlFor={`${formIdPrefix}-website`}>Site web</label>
+        <label htmlFor={`form-website-${source}`}>Site web</label>
         <input
-          id={`${formIdPrefix}-website`}
-          name="website"
+          id={`form-website-${source}`}
           type="text"
           tabIndex={-1}
           autoComplete="off"
@@ -184,96 +226,101 @@ export function LeadCaptureForm({
         />
       </div>
 
-      {/* Champ Prénom (Obligatoire) */}
-      <div>
+      <div className="space-y-1.5">
         <label
-          htmlFor={`${formIdPrefix}-firstname`}
-          className="block text-xs font-mono text-[#F3F1EB] mb-2"
+          htmlFor={`form-firstname-${source}`}
+          className="block font-mono text-xs text-[#A5A5A0] tracking-wider"
         >
           PRÉNOM <span className="text-[#EEB149]">*</span>
         </label>
         <input
-          id={`${formIdPrefix}-firstname`}
-          name="firstName"
+          id={`form-firstname-${source}`}
           type="text"
-          required
           autoComplete="given-name"
+          required
           value={firstName}
           onFocus={handleInteractionStart}
           onChange={(e) => setFirstName(e.target.value)}
-          placeholder="Ton prénom"
-          className="w-full px-4 py-3 bg-[#151515] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none"
+          placeholder="Ex : Koffi"
+          className="w-full bg-[#090909] border border-[#565A5C]/60 focus:border-[#EEB149] text-[#FFFFFF] px-4 py-3 text-sm font-sans outline-none transition-colors"
         />
       </div>
 
-      {/* Champ Email (Obligatoire) */}
-      <div>
+      <div className="space-y-1.5">
         <label
-          htmlFor={`${formIdPrefix}-email`}
-          className="block text-xs font-mono text-[#F3F1EB] mb-2"
+          htmlFor={`form-email-${source}`}
+          className="block font-mono text-xs text-[#A5A5A0] tracking-wider"
         >
           ADRESSE EMAIL <span className="text-[#EEB149]">*</span>
         </label>
         <input
-          id={`${formIdPrefix}-email`}
-          name="email"
+          id={`form-email-${source}`}
           type="email"
-          required
           autoComplete="email"
+          required
           value={email}
           onFocus={handleInteractionStart}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="ton.email@exemple.com"
-          className="w-full px-4 py-3 bg-[#151515] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none"
+          placeholder="Ex : koffi@exemple.com"
+          className="w-full bg-[#090909] border border-[#565A5C]/60 focus:border-[#EEB149] text-[#FFFFFF] px-4 py-3 text-sm font-sans outline-none transition-colors"
         />
       </div>
 
-      {/* Case de consentement (Obligatoire) */}
+      {/* Case de consentement RGPD explicite */}
       <div className="flex items-start gap-3 pt-1">
         <input
-          id={`${formIdPrefix}-consent`}
-          name="consent"
+          id={`form-consent-${source}`}
           type="checkbox"
           required
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-1 w-4 h-4 accent-[#EEB149] bg-[#151515] border-[#565A5C] shrink-0 cursor-pointer"
+          className="mt-1 w-4 h-4 bg-[#090909] border-[#565A5C] text-[#EEB149] focus:ring-0 cursor-pointer accent-[#EEB149]"
         />
         <label
-          htmlFor={`${formIdPrefix}-consent`}
-          className="text-xs text-[#F3F1EB] leading-relaxed cursor-pointer"
+          htmlFor={`form-consent-${source}`}
+          className="text-xs text-[#A5A5A0] leading-relaxed cursor-pointer select-none"
         >
           {consentText}
         </label>
       </div>
 
-      {/* Protection Cloudflare Turnstile */}
+      {/* Widget Cloudflare Turnstile */}
       <TurnstileField
+        ref={turnstileRef}
         onVerify={handleTurnstileVerify}
         onExpire={handleTurnstileExpire}
       />
 
-      {/* Message d'erreur simple */}
-      {status === 'error' && errorMessage && (
-        <p
-          role="alert"
-          className="text-xs font-mono text-[#EEB149] border border-[#EEB149]/60 bg-[#151515] p-3"
-        >
-          {errorMessage}
-        </p>
-      )}
+      {/* Message d'erreur accessible avec aria-live */}
+      <div aria-live="polite">
+        {errorMessage && (
+          <p className="text-xs font-mono text-red-400 bg-red-950/40 border border-red-800/50 p-2.5">
+            {errorMessage}
+          </p>
+        )}
+      </div>
 
-      {/* Bouton de soumission */}
       <button
         type="submit"
-        disabled={status === 'loading'}
-        className="w-full py-4 px-6 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors disabled:opacity-60 cursor-pointer"
+        disabled={isSubmitDisabled}
+        className={`w-full py-4 px-6 font-mono text-xs sm:text-sm font-bold tracking-wider transition-all duration-200 ${
+          isSubmitDisabled
+            ? 'bg-[#151515] border border-[#565A5C]/40 text-[#A5A5A0]/60 cursor-not-allowed'
+            : 'bg-[#EEB149] hover:bg-[#EEB149]/90 text-[#090909] cursor-pointer shadow-lg hover:shadow-[#EEB149]/20'
+        }`}
       >
-        {status === 'loading' ? 'PRÉPARATION EN COURS...' : submitLabel}
+        {status === 'loading' ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="w-3.5 h-3.5 border-2 border-[#090909] border-t-transparent animate-spin rounded-full" />
+            ENVOI EN COURS...
+          </span>
+        ) : (
+          submitLabel
+        )}
       </button>
 
-      <p className="text-xs text-center text-[#A5A5A0]">
-        Ton adresse reste privée. Tu peux te désinscrire à tout moment.
+      <p className="text-[11px] text-[#A5A5A0]/80 text-center font-mono pt-1">
+        🔒 Tes informations restent confidentielles. Aucun spam.
       </p>
     </form>
   );

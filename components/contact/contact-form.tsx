@@ -1,15 +1,26 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { TurnstileField } from '@/components/resource/TurnstileField';
+import React, { useState, useCallback, useRef } from 'react';
+import {
+  TurnstileField,
+  type TurnstileFieldHandle,
+} from '@/components/resource/TurnstileField';
 
 export function ContactForm() {
+  const turnstileRef = useRef<TurnstileFieldHandle>(null);
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [website, setWebsite] = useState(''); // Honeypot
-  const [turnstileToken, setTurnstileToken] = useState('dev-turnstile-token');
+
+  const isDev = process.env.NODE_ENV === 'development';
+  const hasSiteKey = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+  const [turnstileToken, setTurnstileToken] = useState(
+    isDev && !hasSiteKey ? 'dev-turnstile-token' : ''
+  );
+
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [feedback, setFeedback] = useState('');
 
@@ -21,8 +32,18 @@ export function ContactForm() {
     setTurnstileToken('');
   }, []);
 
+  const resetTurnstile = () => {
+    if (isDev && !hasSiteKey) {
+      setTurnstileToken('dev-turnstile-token');
+    } else {
+      setTurnstileToken('');
+    }
+    turnstileRef.current?.reset();
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (status === 'loading') return;
 
     if (!turnstileToken) {
       setStatus('error');
@@ -50,6 +71,7 @@ export function ContactForm() {
       });
 
       const data = await res.json();
+
       if (res.ok && data.ok) {
         setStatus('success');
         setFeedback(data.message || 'Merci. Ton message a bien été envoyé.');
@@ -57,15 +79,34 @@ export function ContactForm() {
         setEmail('');
         setSubject('');
         setMessage('');
+        resetTurnstile();
       } else {
         setStatus('error');
-        setFeedback(data.error || 'Veuillez vérifier les informations saisies.');
+        resetTurnstile();
+
+        if (res.status === 429) {
+          setFeedback('Trop de tentatives. Réessaie plus tard.');
+        } else if (res.status === 503) {
+          setFeedback(
+            data.devNotice ||
+              'Le service est temporairement indisponible. Réessaie dans quelques instants.'
+          );
+        } else if (res.status === 400) {
+          setFeedback(data.error || 'Veuillez vérifier les informations saisies.');
+        } else {
+          setFeedback(
+            data.error || 'Impossible d’envoyer le message pour le moment.'
+          );
+        }
       }
     } catch {
       setStatus('error');
-      setFeedback('Impossible d’envoyer le message pour le moment.');
+      resetTurnstile();
+      setFeedback('La connexion a échoué. Vérifie Internet puis réessaie.');
     }
   };
+
+  const isSubmitDisabled = status === 'loading' || !turnstileToken;
 
   return (
     <form
@@ -90,38 +131,36 @@ export function ContactForm() {
         <div>
           <label
             htmlFor="contact-name"
-            className="block text-xs font-mono text-[#F3F1EB] mb-2"
+            className="block text-xs font-mono text-[#A5A5A0] tracking-wider mb-2"
           >
-            NOM <span className="text-[#EEB149]">*</span>
+            NOM COMPLET <span className="text-[#EEB149]">*</span>
           </label>
           <input
             id="contact-name"
             type="text"
             required
-            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors"
             placeholder="Ton nom"
-            className="w-full px-4 py-3 bg-[#090909] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none"
           />
         </div>
 
         <div>
           <label
             htmlFor="contact-email"
-            className="block text-xs font-mono text-[#F3F1EB] mb-2"
+            className="block text-xs font-mono text-[#A5A5A0] tracking-wider mb-2"
           >
-            EMAIL <span className="text-[#EEB149]">*</span>
+            ADRESSE EMAIL <span className="text-[#EEB149]">*</span>
           </label>
           <input
             id="contact-email"
             type="email"
             required
-            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors"
             placeholder="ton.email@exemple.com"
-            className="w-full px-4 py-3 bg-[#090909] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none"
           />
         </div>
       </div>
@@ -129,7 +168,7 @@ export function ContactForm() {
       <div>
         <label
           htmlFor="contact-subject"
-          className="block text-xs font-mono text-[#F3F1EB] mb-2"
+          className="block text-xs font-mono text-[#A5A5A0] tracking-wider mb-2"
         >
           SUJET <span className="text-[#EEB149]">*</span>
         </label>
@@ -139,62 +178,73 @@ export function ContactForm() {
           required
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Question sur Le Capital du Bâtisseur / Suivi de commande"
-          className="w-full px-4 py-3 bg-[#090909] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none"
+          className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors"
+          placeholder="Objet de ton message"
         />
       </div>
 
       <div>
         <label
           htmlFor="contact-message"
-          className="block text-xs font-mono text-[#F3F1EB] mb-2"
+          className="block text-xs font-mono text-[#A5A5A0] tracking-wider mb-2"
         >
           MESSAGE <span className="text-[#EEB149]">*</span>
         </label>
         <textarea
           id="contact-message"
-          rows={5}
           required
+          rows={6}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Explique ta demande avec précision..."
-          className="w-full px-4 py-3 bg-[#090909] border border-[#565A5C]/60 text-sm text-[#FFFFFF] placeholder:text-[#A5A5A0]/60 focus:border-[#EEB149] focus:outline-none resize-y"
+          className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors resize-none"
+          placeholder="Écris ton message avec précision..."
         />
       </div>
 
-      {/* Cloudflare Turnstile anti-bot field */}
-      <div className="pt-1">
-        <TurnstileField
-          onVerify={handleTurnstileVerify}
-          onExpire={handleTurnstileExpire}
-        />
+      {/* Widget Turnstile */}
+      <TurnstileField
+        ref={turnstileRef}
+        onVerify={handleTurnstileVerify}
+        onExpire={handleTurnstileExpire}
+      />
+
+      {/* Zone de feedback accessible avec aria-live */}
+      <div aria-live="polite">
+        {feedback && (
+          <div
+            className={`p-4 border text-xs font-mono ${
+              status === 'success'
+                ? 'bg-[#EEB149]/10 border-[#EEB149]/40 text-[#EEB149]'
+                : 'bg-red-950/40 border-red-800/50 text-red-400'
+            }`}
+          >
+            {feedback}
+          </div>
+        )}
       </div>
-
-      {status === 'error' && (
-        <p
-          role="alert"
-          className="text-xs font-mono text-[#EEB149] border border-[#EEB149]/50 bg-[#090909] p-3.5"
-        >
-          {feedback}
-        </p>
-      )}
-
-      {status === 'success' && (
-        <p
-          role="status"
-          className="text-xs font-mono text-[#090909] bg-[#EEB149] p-3.5 font-semibold"
-        >
-          {feedback}
-        </p>
-      )}
 
       <button
         type="submit"
-        disabled={status === 'loading'}
-        className="w-full sm:w-auto px-8 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors disabled:opacity-60 cursor-pointer"
+        disabled={isSubmitDisabled}
+        className={`w-full py-4 px-8 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-200 ${
+          isSubmitDisabled
+            ? 'bg-[#151515] border border-[#565A5C]/40 text-[#A5A5A0]/60 cursor-not-allowed'
+            : 'bg-[#EEB149] hover:bg-[#EEB149]/90 text-[#090909] cursor-pointer shadow-lg hover:shadow-[#EEB149]/20'
+        }`}
       >
-        {status === 'loading' ? 'ENVOI EN COURS...' : 'ENVOYER LE MESSAGE'}
+        {status === 'loading' ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="w-3.5 h-3.5 border-2 border-[#090909] border-t-transparent animate-spin rounded-full" />
+            TRANSMISSION DU MESSAGE...
+          </span>
+        ) : (
+          'ENVOYER LE MESSAGE'
+        )}
       </button>
+
+      <p className="text-[11px] font-mono text-[#A5A5A0]/80 text-center">
+        🔒 Vos coordonnées restent strictement confidentielles.
+      </p>
     </form>
   );
 }
