@@ -7,20 +7,18 @@ export const size = {
 };
 export const contentType = 'image/png';
 
-export default async function Image({
-  params,
-}: {
+interface Props {
   params: Promise<{ slug: string }>;
-}) {
+}
+
+export default async function Image({ params }: Props) {
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
-  const title = product?.title || 'Ebook Kheops Set';
-  const subtitle = product?.subtitle || 'L’Acier Bienveillant · Une vie est un chantier.';
-  const tag = product?.tag || 'PLAN DE CONSTRUCTION';
-  const pageCount = product?.pageCount ? `${product.pageCount} PAGES · FORMAT PDF` : 'FORMAT PDF';
-  const price = product?.salePriceXaf || product?.priceXaf || 10000;
-  const formattedPrice = `${new Intl.NumberFormat('fr-FR').format(price)} FCFA`;
+  const title = product?.title || 'KHEOPS SET';
+  const subtitle = product?.subtitle || 'L’Acier Bienveillant · Outils de Décision';
+  const pageCount = product?.pageCount || 49;
+  const price = product?.price ? `${product.price.toLocaleString('fr-FR')} FCFA` : '10 000 FCFA';
 
   return new ImageResponse(
     (
@@ -39,6 +37,7 @@ export default async function Image({
           position: 'relative',
         }}
       >
+        {/* Ligne d'or supérieure technique */}
         <div
           style={{
             position: 'absolute',
@@ -50,11 +49,11 @@ export default async function Image({
           }}
         />
 
-        {/* Top Header */}
+        {/* Header technique */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div
             style={{
-              fontSize: '28px',
+              fontSize: '24px',
               fontWeight: 800,
               letterSpacing: '0.2em',
               color: '#FFFFFF',
@@ -66,34 +65,33 @@ export default async function Image({
             style={{
               fontSize: '14px',
               letterSpacing: '0.18em',
-              backgroundColor: '#151515',
-              border: '1px solid #565A5C',
-              padding: '6px 16px',
               color: '#EEB149',
               fontWeight: 600,
+              border: '1px solid #EEB149',
+              padding: '6px 16px',
             }}
           >
-            {tag}
+            EBOOK PDF · {pageCount} PAGES
           </div>
         </div>
 
-        {/* Center Title and Description */}
+        {/* Titre et Promesse du Produit */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div
             style={{
               fontSize: '18px',
-              letterSpacing: '0.15em',
+              letterSpacing: '0.22em',
               color: '#A5A5A0',
               fontWeight: 600,
             }}
           >
-            {pageCount}
+            MANUEL DE CONSTRUCTION STRATÉGIQUE
           </div>
           <div
             style={{
               fontSize: '56px',
               fontWeight: 800,
-              lineHeight: 1.1,
+              lineHeight: 1.15,
               color: '#FFFFFF',
             }}
           >
@@ -111,7 +109,7 @@ export default async function Image({
           </div>
         </div>
 
-        {/* Bottom Bar with Price */}
+        {/* Footer avec prix et mentions Chariow */}
         <div
           style={{
             display: 'flex',
@@ -123,28 +121,32 @@ export default async function Image({
         >
           <div
             style={{
-              fontSize: '18px',
+              display: 'flex',
+              gap: '24px',
+              fontSize: '15px',
               color: '#A5A5A0',
               letterSpacing: '0.08em',
             }}
           >
-            L’ACIER BIENVEILLANT · PAIEMENT ET LIVRAISON CHARIOW
+            <span>PAIEMENT ET ACCÈS VIA CHARIOW</span>
+            <span>·</span>
+            <span>LIVRAISON INSTANTANÉE</span>
           </div>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
+              gap: '16px',
             }}
           >
             <span
               style={{
-                fontSize: '32px',
+                fontSize: '28px',
                 fontWeight: 800,
                 color: '#EEB149',
               }}
             >
-              {formattedPrice}
+              {price}
             </span>
           </div>
         </div>

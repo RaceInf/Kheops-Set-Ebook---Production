@@ -15,6 +15,19 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/ebooks',
   },
+  openGraph: {
+    title: 'Catalogue Ebooks — Kheops Set | Le Capital & Le Code du Bâtisseur',
+    description:
+      'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur, Le Code du Bâtisseur, et les prochains ouvrages en préparation.',
+    url: '/ebooks',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Catalogue Ebooks — Kheops Set',
+    description:
+      'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur, Le Code du Bâtisseur.',
+  },
 };
 
 export default function EbooksCatalogPage() {

@@ -37,6 +37,16 @@ export const metadata: Metadata = {
   title: 'Kheops Set — Le Capital du Bâtisseur | Outils de Décision',
   description:
     'Marque éditoriale anonyme. Découvre Le Capital du Bâtisseur (49 pages PDF) pour reprendre le contrôle de ton argent, de ton temps et de tes décisions.',
+  icons: {
+    icon: [
+      { url: '/icon', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.svg',
+  },
   alternates: {
     canonical: '/',
   },
