@@ -9,6 +9,7 @@ import {
 import { checkServerRateLimit } from '@/lib/rateLimit';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { requireContactConfig } from '@/lib/env/server';
+import { logger } from '@/lib/logger';
 
 const SAFE_TEXT_REGEX = /^[^\u0000-\u001F\u007F<>]+$/;
 
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   const rateLimit = await checkServerRateLimit('contact', ip, 3, 15 * 60 * 1000);
   if (!rateLimit.allowed) {
+    logger.security('contact_rate_limit_exceeded', { ip: logger.mask(ip) });
     return NextResponse.json(
       {
         ok: false,
@@ -84,6 +86,7 @@ export async function POST(req: NextRequest) {
 
   // 6. Contrôle du Honeypot silencieux
   if (typeof rawBody.website === 'string' && rawBody.website.trim().length > 0) {
+    logger.security('contact_honeypot_triggered', { ip: logger.mask(ip) });
     return NextResponse.json({
       ok: true,
       message: 'Merci. Ton message a bien été envoyé.',
@@ -101,6 +104,7 @@ export async function POST(req: NextRequest) {
   // 8. Vérification Cloudflare Turnstile côté serveur
   const turnstileCheck = await verifyTurnstileToken(parsed.data.turnstileToken, ip);
   if (!turnstileCheck.success) {
+    logger.security('contact_turnstile_failed', { ip: logger.mask(ip) });
     return NextResponse.json(
       {
         ok: false,
@@ -112,6 +116,7 @@ export async function POST(req: NextRequest) {
 
   // 9. Contrôle d'origine
   if (!isAllowedOrigin(req)) {
+    logger.security('contact_invalid_origin', { ip: logger.mask(ip) });
     return NextResponse.json(
       { ok: false, error: 'Origine de requête non autorisée.' },
       { status: 403 }
@@ -143,12 +148,17 @@ export async function POST(req: NextRequest) {
   }
 
   // 11. Traitement sécurisé du message (assainissement anti-XSS)
-  const _sanitizedPayload = {
+  const sanitizedPayload = {
     name: sanitizePlainText(parsed.data.name),
     email: parsed.data.email,
     subject: sanitizePlainText(parsed.data.subject),
     message: sanitizePlainText(parsed.data.message),
   };
+
+  logger.audit('contact_message_received', {
+    subject: sanitizedPayload.subject,
+    email: logger.maskEmail(sanitizedPayload.email),
+  });
 
   return NextResponse.json({
     ok: true,

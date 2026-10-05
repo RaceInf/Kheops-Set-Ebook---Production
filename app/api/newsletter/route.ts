@@ -10,6 +10,7 @@ import { checkServerRateLimit } from '@/lib/rateLimit';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { syncProtocolContact } from '@/lib/brevo';
 import { requireNewsletterConfig } from '@/lib/env/server';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   // 1. Vérification méthode POST (HTTP 405)
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
   const rateLimit = await checkServerRateLimit('newsletter', clientIp, 5, 15 * 60 * 1000);
 
   if (!rateLimit.allowed) {
+    logger.security('newsletter_rate_limit_exceeded', { ip: logger.mask(clientIp) });
     return NextResponse.json(
       { error: 'Trop de tentatives. Réessaie plus tard.' },
       { status: 429 }
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest) {
 
   // 6. Contrôle du Honeypot silencieux (neutralisation des robots sans appel Brevo ni Turnstile)
   if (typeof rawBody.website === 'string' && rawBody.website.trim().length > 0) {
+    logger.security('newsletter_honeypot_triggered', { ip: logger.mask(clientIp) });
     return NextResponse.json({ success: true }, { status: 200 });
   }
 
@@ -66,6 +69,7 @@ export async function POST(req: NextRequest) {
   // 8. Vérification Cloudflare Turnstile côté serveur
   const turnstileCheck = await verifyTurnstileToken(validData.turnstileToken, clientIp);
   if (!turnstileCheck.success) {
+    logger.security('newsletter_turnstile_failed', { ip: logger.mask(clientIp) });
     return NextResponse.json(
       { error: 'La vérification de sécurité a échoué. Réessaie dans quelques instants.' },
       { status: 400 }
@@ -74,6 +78,7 @@ export async function POST(req: NextRequest) {
 
   // 9. Contrôle d'origine (same-origin / whitelist)
   if (!isAllowedOrigin(req)) {
+    logger.security('newsletter_invalid_origin', { ip: logger.mask(clientIp) });
     return NextResponse.json(
       { error: 'Origine de requête non autorisée.' },
       { status: 403 }
@@ -114,6 +119,9 @@ export async function POST(req: NextRequest) {
   });
 
   if (!syncResult.ok) {
+    logger.safeError('newsletter_brevo_sync_failed', syncResult.error, {
+      email: logger.maskEmail(cleanEmail),
+    });
     return NextResponse.json(
       {
         success: false,
@@ -122,6 +130,10 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  logger.audit('newsletter_subscription_completed', {
+    email: logger.maskEmail(cleanEmail),
+  });
 
   return NextResponse.json({
     success: true,

@@ -55,6 +55,7 @@ const cspDirectives = [
   "form-action 'self'",
   "base-uri 'self'",
   "object-src 'none'",
+  ...(isProd ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
 const nextConfig: NextConfig = {
@@ -78,31 +79,54 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['motion'],
   async headers() {
+    const securityHeaders = [
+      {
+        key: 'Content-Security-Policy',
+        value: cspDirectives,
+      },
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'strict-origin-when-cross-origin',
+      },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=(), payment=()',
+      },
+      {
+        key: 'X-Frame-Options',
+        value: 'SAMEORIGIN',
+      },
+      {
+        key: 'Cross-Origin-Opener-Policy',
+        value: 'same-origin-allow-popups',
+      },
+      {
+        key: 'X-DNS-Prefetch-Control',
+        value: 'on',
+      },
+      ...(isProd
+        ? [
+            {
+              key: 'Strict-Transport-Security',
+              // NOTE SÉCURITÉ DOMAINE :
+              // Le domaine actuel est un sous-domaine Vercel (kheops-set-ebook-mu.vercel.app).
+              // Réactiver includeSubDomains et preload uniquement après migration vers un
+              // domaine personnalisé que Kheops Set contrôle entièrement, avec HTTPS garanti
+              // sur tous les sous-domaines.
+              value: 'max-age=63072000',
+            },
+          ]
+        : []),
+    ];
+
     return [
       {
         source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: cspDirectives,
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-        ],
+        headers: securityHeaders,
       },
     ];
   },
