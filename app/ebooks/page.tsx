@@ -4,21 +4,20 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { BookCard } from '@/components/products/BookCard';
-import { ComingSoonBookCard } from '@/components/products/ComingSoonBookCard';
 import { PageImmersion } from '@/components/animations/page-immersion';
-import { AVAILABLE_PRODUCTS, COMING_SOON_PRODUCTS } from '@/lib/products';
+import { AVAILABLE_PRODUCTS } from '@/lib/products';
 
 export const metadata: Metadata = {
   title: 'Catalogue Ebooks — Kheops Set | Le Capital & Le Code du Bâtisseur',
   description:
-    'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur, Le Code du Bâtisseur, et les prochains ouvrages en préparation.',
+    'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur et Le Code du Bâtisseur.',
   alternates: {
     canonical: '/ebooks',
   },
   openGraph: {
     title: 'Catalogue Ebooks — Kheops Set | Le Capital & Le Code du Bâtisseur',
     description:
-      'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur, Le Code du Bâtisseur, et les prochains ouvrages en préparation.',
+      'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur et Le Code du Bâtisseur.',
     url: '/ebooks',
     type: 'website',
   },
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Catalogue Ebooks — Kheops Set',
     description:
-      'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur, Le Code du Bâtisseur.',
+      'Découvre les ebooks disponibles de Kheops Set : Le Capital du Bâtisseur et Le Code du Bâtisseur.',
   },
 };
 
@@ -84,30 +83,6 @@ export default function EbooksCatalogPage() {
             <div className="space-y-10">
               {AVAILABLE_PRODUCTS.map((product) => (
                 <BookCard key={product.id} product={product} />
-              ))}
-            </div>
-          </section>
-
-          {/* 2. Produits à venir : L'Audace de transcender & Éveille le cerveau entrepreneurial */}
-          <section aria-labelledby="upcoming-ebooks-heading" className="space-y-8 pt-6">
-            <div className="flex items-center justify-between border-b border-[#565A5C]/30 pb-4">
-              <div className="space-y-1">
-                <h2
-                  id="upcoming-ebooks-heading"
-                  className="font-display text-2xl sm:text-3xl font-bold text-[#FFFFFF]"
-                >
-                  Livres à venir
-                </h2>
-                <p className="text-sm text-[#A5A5A0]">
-                  Inscris-toi pour être informé par email dès leur publication officielle.
-                </p>
-              </div>
-              <span className="font-mono text-xs text-[#EEB149]">PROCHAINEMENT</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {COMING_SOON_PRODUCTS.map((product) => (
-                <ComingSoonBookCard key={product.id} product={product} />
               ))}
             </div>
           </section>

@@ -24,8 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/remboursement', priority: 0.3, changeFrequency: 'yearly' as const },
   ];
 
-  // Pages produits publiées et disponibles uniquement (exclut les "prochainement")
-  const productRoutes = ALL_PRODUCTS.filter((p) => !p.isComingSoon).map((p) => ({
+  // Pages produits publiées et disponibles uniquement (Le Capital & Le Code)
+  const productRoutes = ALL_PRODUCTS.map((p) => ({
     path: `/ebooks/${p.slug}`,
     priority: 0.95,
     changeFrequency: 'weekly' as const,

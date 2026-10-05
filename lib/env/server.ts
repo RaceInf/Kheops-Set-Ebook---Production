@@ -24,7 +24,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 const serverEnvRawSchema = z.object({
   BREVO_API_KEY: z.string().min(1).optional(),
   BREVO_PROTOCOL_LIST_ID: z.string().min(1).optional(),
-  BREVO_UPCOMING_BOOKS_LIST_ID: z.string().min(1).optional(),
   BREVO_CAPITAL_CUSTOMERS_LIST_ID: z.string().min(1).optional(),
   BREVO_CODE_CUSTOMERS_LIST_ID: z.string().min(1).optional(),
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
@@ -40,7 +39,6 @@ function getRawServerEnv() {
   return serverEnvRawSchema.parse({
     BREVO_API_KEY: process.env.BREVO_API_KEY,
     BREVO_PROTOCOL_LIST_ID: process.env.BREVO_PROTOCOL_LIST_ID,
-    BREVO_UPCOMING_BOOKS_LIST_ID: process.env.BREVO_UPCOMING_BOOKS_LIST_ID,
     BREVO_CAPITAL_CUSTOMERS_LIST_ID: process.env.BREVO_CAPITAL_CUSTOMERS_LIST_ID,
     BREVO_CODE_CUSTOMERS_LIST_ID: process.env.BREVO_CODE_CUSTOMERS_LIST_ID,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
@@ -126,33 +124,6 @@ export function requireNewsletterConfig() {
       'UPSTASH_REDIS_REST_TOKEN',
     ],
     '/api/newsletter'
-  );
-}
-
-/**
- * Exige la configuration complète pour la liste d'attente des parutions :
- * - BREVO_API_KEY
- * - BREVO_UPCOMING_BOOKS_LIST_ID
- * - TURNSTILE_SECRET_KEY
- * - UPSTASH_REDIS_REST_URL
- * - UPSTASH_REDIS_REST_TOKEN
- */
-export function requireWaitlistConfig() {
-  return checkKeys<{
-    BREVO_API_KEY: string;
-    BREVO_UPCOMING_BOOKS_LIST_ID: string;
-    TURNSTILE_SECRET_KEY: string;
-    UPSTASH_REDIS_REST_URL: string;
-    UPSTASH_REDIS_REST_TOKEN: string;
-  }>(
-    [
-      'BREVO_API_KEY',
-      'BREVO_UPCOMING_BOOKS_LIST_ID',
-      'TURNSTILE_SECRET_KEY',
-      'UPSTASH_REDIS_REST_URL',
-      'UPSTASH_REDIS_REST_TOKEN',
-    ],
-    '/api/waitlist'
   );
 }
 

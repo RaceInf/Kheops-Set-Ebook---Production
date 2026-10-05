@@ -42,7 +42,6 @@ Dans le tableau de bord Vercel (**Settings** > **Environment Variables**) :
 | `NEXT_PUBLIC_FACEBOOK_URL` | Publique | Dev, Preview, Prod | Facebook | Facultative | Page Facebook officielle de la marque |
 | `BREVO_API_KEY` | **Secrète** | Serveur (Preview, Prod) | Brevo | Obligatoire (Prod) | Brevo > Clés API > Générer une clé API v3 |
 | `BREVO_PROTOCOL_LIST_ID` | **Secrète** | Serveur (Preview, Prod) | Brevo | Obligatoire (Prod) | Brevo > Contacts > Listes (ID numérique de la liste Le Protocole) |
-| `BREVO_UPCOMING_BOOKS_LIST_ID` | **Secrète** | Serveur (Preview, Prod) | Brevo | Obligatoire (Prod) | Brevo > Contacts > Listes (ID numérique de la liste d'attente) |
 | `BREVO_CAPITAL_CUSTOMERS_LIST_ID` | **Secrète** | Serveur (Preview, Prod) | Brevo | Obligatoire (Prod) | Brevo > Contacts > Listes (ID numérique de la liste acheteurs Capital) |
 | `BREVO_CODE_CUSTOMERS_LIST_ID` | **Secrète** | Serveur (Preview, Prod) | Brevo | Obligatoire (Prod) | Brevo > Contacts > Listes (ID numérique de la liste acheteurs Code) |
 | `TURNSTILE_SECRET_KEY` | **Secrète** | Serveur (Preview, Prod) | Cloudflare Turnstile | Obligatoire (Prod) | Dashboard Cloudflare > Turnstile > Secret Key |
@@ -61,11 +60,9 @@ Pour éliminer les accès directs non vérifiés à `process.env`, les routes AP
 
 1. **`requireNewsletterConfig()`** :
    Exige `BREVO_API_KEY`, `BREVO_PROTOCOL_LIST_ID`, `TURNSTILE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
-2. **`requireWaitlistConfig()`** :
-   Exige `BREVO_API_KEY`, `BREVO_UPCOMING_BOOKS_LIST_ID`, `TURNSTILE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
-3. **`requireContactConfig()`** :
+2. **`requireContactConfig()`** :
    Exige `TURNSTILE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
-4. **`requireChariowWebhookConfig()`** :
+3. **`requireChariowWebhookConfig()`** :
    Exige `CHARIOW_WEBHOOK_SECRET`, `CHARIOW_CAPITAL_PRODUCT_ID`, `CHARIOW_CODE_PRODUCT_ID`, `BREVO_CAPITAL_CUSTOMERS_LIST_ID`, `BREVO_CODE_CUSTOMERS_LIST_ID`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
 
 ---

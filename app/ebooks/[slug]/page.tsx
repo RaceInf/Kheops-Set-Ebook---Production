@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
-  if (!product || product.isComingSoon) {
+  if (!product) {
     return {
       title: 'Catalogue Ebooks | Kheops Set',
     };
@@ -73,11 +73,6 @@ export default async function EbookProductPage({ params }: PageProps) {
     notFound();
   }
 
-  // Si un visiteur tente d'ouvrir le slug d'un livre "PROCHAINEMENT", on le redirige vers le catalogue
-  if (ebook.isComingSoon) {
-    redirect('/ebooks');
-  }
-
   const checkoutUrl = getChariowCheckoutUrl(ebook.chariowUrl, ebook.slug);
   const priceInfo = calculatePriceInfo(ebook);
   const appUrl = getValidSiteUrl(
@@ -88,7 +83,7 @@ export default async function EbookProductPage({ params }: PageProps) {
 
   const relatedProducts = ebook.relatedEbooks
     .map((relSlug) => getProductBySlug(relSlug))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p && !p.isComingSoon));
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   const jsonLd = [
     {

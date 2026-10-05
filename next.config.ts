@@ -78,6 +78,20 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   transpilePackages: ['motion'],
+  async redirects() {
+    return [
+      {
+        source: '/ebooks/laudace-de-transcender',
+        destination: '/ebooks',
+        permanent: true, // HTTP 308
+      },
+      {
+        source: '/ebooks/eveille-le-cerveau-entrepreneurial',
+        destination: '/ebooks',
+        permanent: true, // HTTP 308
+      },
+    ];
+  },
   async headers() {
     const securityHeaders = [
       {

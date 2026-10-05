@@ -10,8 +10,7 @@ export type KheopsAnalyticsEvent =
   | 'begin_checkout'
   | 'click_buy_chariow'
   | 'currency_changed'
-  | 'contact_form_submitted'
-  | 'coming_soon_waitlist_submitted';
+  | 'contact_form_submitted';
 
 // Liste stricte des clés de métadonnées autorisées (aucune donnée personnelle)
 export interface SafeAnalyticsProps {

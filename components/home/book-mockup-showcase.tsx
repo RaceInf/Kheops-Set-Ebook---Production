@@ -8,12 +8,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   CAPITAL_PRODUCT,
   CODE_PRODUCT,
-  COMING_SOON_PRODUCTS,
   getChariowCheckoutUrl,
 } from '@/lib/products';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { FeaturedBookCard } from '@/components/products/FeaturedBookCard';
-import { ComingSoonBookCard } from '@/components/products/ComingSoonBookCard';
 import { BookPreviewReader } from '@/components/products/BookPreviewReader';
 import {
   IconPdf,
@@ -409,7 +407,7 @@ export function BookMockupShowcase() {
           </div>
         )}
 
-        {/* Second Available Product (Le Code du Bâtisseur) + Upcoming Books Preview */}
+        {/* Second Available Product (Le Code du Bâtisseur) */}
         <div className="pt-12 border-t border-[#565A5C]/35 space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-1">
@@ -417,7 +415,7 @@ export function BookMockupShowcase() {
                 CATALOGUE KHEOPS SET
               </p>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-[#FFFFFF]">
-                L’outil de base et les prochains livres
+                La suite pratique : Le Code du Bâtisseur
               </h3>
             </div>
 
@@ -430,14 +428,9 @@ export function BookMockupShowcase() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="max-w-3xl">
             {/* Produit 2 : Le Code du Bâtisseur (5 000 FCFA barré -> 3 995 FCFA, -20,1 %) */}
             <FeaturedBookCard product={CODE_PRODUCT} />
-
-            {/* Produits 3 & 4 : L'Audace de transcender & Éveille le cerveau entrepreneurial (PROCHAINEMENT) */}
-            {COMING_SOON_PRODUCTS.map((item) => (
-              <ComingSoonBookCard key={item.id} product={item} />
-            ))}
           </div>
         </div>
       </div>

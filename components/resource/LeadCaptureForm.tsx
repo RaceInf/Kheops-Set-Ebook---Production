@@ -7,12 +7,10 @@ import {
   type TurnstileFieldHandle,
 } from '@/components/resource/TurnstileField';
 import { EmailCaptureSuccess } from '@/components/resource/EmailCaptureSuccess';
-import type { NewsletterSource } from '@/lib/NewsletterSchema';
 import { trackEvent } from '@/lib/analytics';
 
 interface LeadCaptureFormProps {
-  source?: NewsletterSource;
-  bookSlug?: string;
+  source?: 'protocole-du-batisseur';
   submitLabel?: string;
   consentText?: string;
   redirectOnSuccess?: boolean;
@@ -22,8 +20,6 @@ interface LeadCaptureFormProps {
 const SIMPLE_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LeadCaptureForm({
-  source = 'protocole-du-batisseur',
-  bookSlug,
   submitLabel = 'RECEVOIR LE PROTOCOLE',
   consentText = 'J’accepte de recevoir le guide et les prochains outils de Kheops Set par email. Je peux me désinscrire à tout moment.',
   redirectOnSuccess = true,
@@ -50,7 +46,7 @@ export function LeadCaptureForm({
   const handleInteractionStart = () => {
     if (!hasStarted) {
       setHasStarted(true);
-      trackEvent('free_resource_form_started', { source });
+      trackEvent('free_resource_form_started', { source: 'protocole-du-batisseur' });
     }
   };
 
@@ -109,30 +105,16 @@ export function LeadCaptureForm({
 
     setStatus('loading');
 
-    // Aiguillage propre de l'endpoint selon la source
-    const endpoint =
-      source === 'protocole-du-batisseur' ? '/api/newsletter' : '/api/waitlist';
-
-    const payload =
-      source === 'protocole-du-batisseur'
-        ? {
-            firstName: trimmedName,
-            email: trimmedEmail,
-            consent: true,
-            turnstileToken,
-            website,
-          }
-        : {
-            firstName: trimmedName,
-            email: trimmedEmail,
-            consent: true,
-            bookSlug,
-            turnstileToken,
-            website,
-          };
+    const payload = {
+      firstName: trimmedName,
+      email: trimmedEmail,
+      consent: true,
+      turnstileToken,
+      website,
+    };
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,19 +131,11 @@ export function LeadCaptureForm({
 
       if (response.ok && data.success) {
         setStatus('success');
-
-        if (source === 'protocole-du-batisseur') {
-          trackEvent('free_resource_form_submitted', {
-            resource_slug: 'protocole-du-batisseur',
-          });
-          if (redirectOnSuccess) {
-            router.push('/merci?ressource=protocole-du-batisseur');
-          }
-        } else {
-          trackEvent('coming_soon_waitlist_submitted', {
-            product_slug: bookSlug || 'livres-a-venir',
-          });
-          resetTurnstile();
+        trackEvent('free_resource_form_submitted', {
+          resource_slug: 'protocole-du-batisseur',
+        });
+        if (redirectOnSuccess) {
+          router.push('/merci?ressource=protocole-du-batisseur');
         }
       } else {
         setStatus('error');
@@ -195,12 +169,8 @@ export function LeadCaptureForm({
   if (status === 'success' && !redirectOnSuccess) {
     return (
       <EmailCaptureSuccess
-        message={
-          source === 'protocole-du-batisseur'
-            ? 'C’est bon. Ton protocole est prêt.'
-            : 'C’est bon. Tu seras informé dès la sortie.'
-        }
-        showProtocolLink={source === 'protocole-du-batisseur'}
+        message="C’est bon. Ton protocole est prêt."
+        showProtocolLink={true}
       />
     );
   }
@@ -215,9 +185,9 @@ export function LeadCaptureForm({
     >
       {/* Honeypot invisible pour neutraliser les robots */}
       <div className="hidden" aria-hidden="true">
-        <label htmlFor={`form-website-${source}`}>Site web</label>
+        <label htmlFor="form-website-newsletter">Site web</label>
         <input
-          id={`form-website-${source}`}
+          id="form-website-newsletter"
           type="text"
           tabIndex={-1}
           autoComplete="off"
@@ -228,13 +198,13 @@ export function LeadCaptureForm({
 
       <div className="space-y-1.5">
         <label
-          htmlFor={`form-firstname-${source}`}
+          htmlFor="form-firstname-newsletter"
           className="block font-mono text-xs text-[#A5A5A0] tracking-wider"
         >
           PRÉNOM <span className="text-[#EEB149]">*</span>
         </label>
         <input
-          id={`form-firstname-${source}`}
+          id="form-firstname-newsletter"
           type="text"
           autoComplete="given-name"
           required
@@ -248,13 +218,13 @@ export function LeadCaptureForm({
 
       <div className="space-y-1.5">
         <label
-          htmlFor={`form-email-${source}`}
+          htmlFor="form-email-newsletter"
           className="block font-mono text-xs text-[#A5A5A0] tracking-wider"
         >
           ADRESSE EMAIL <span className="text-[#EEB149]">*</span>
         </label>
         <input
-          id={`form-email-${source}`}
+          id="form-email-newsletter"
           type="email"
           autoComplete="email"
           required
@@ -269,7 +239,7 @@ export function LeadCaptureForm({
       {/* Case de consentement RGPD explicite */}
       <div className="flex items-start gap-3 pt-1">
         <input
-          id={`form-consent-${source}`}
+          id="form-consent-newsletter"
           type="checkbox"
           required
           checked={consent}
@@ -277,7 +247,7 @@ export function LeadCaptureForm({
           className="mt-1 w-4 h-4 bg-[#090909] border-[#565A5C] text-[#EEB149] focus:ring-0 cursor-pointer accent-[#EEB149]"
         />
         <label
-          htmlFor={`form-consent-${source}`}
+          htmlFor="form-consent-newsletter"
           className="text-xs text-[#A5A5A0] leading-relaxed cursor-pointer select-none"
         >
           {consentText}

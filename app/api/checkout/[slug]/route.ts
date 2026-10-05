@@ -30,7 +30,7 @@ export async function POST(
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
-  if (!product || product.isComingSoon) {
+  if (!product) {
     return NextResponse.json(
       { ok: false, error: 'Produit introuvable ou non disponible.' },
       { status: 404 }

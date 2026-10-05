@@ -1,6 +1,6 @@
 export type CurrencyCode = 'XAF' | 'EUR' | 'USD';
 
-export type ProductStatus = 'available' | 'coming_soon';
+export type ProductStatus = 'available';
 
 export interface ProductChapter {
   partNumber?: string;
@@ -74,9 +74,8 @@ export interface Product {
   seoDescription: string;
   canonicalPath: string;
   canonicalUrl?: string;
-  availability: 'InStock' | 'PreOrder' | 'ComingSoon';
+  availability: 'InStock' | 'PreOrder';
   isFeatured: boolean;
-  isComingSoon: boolean;
   chariowProductId?: string;
   relatedEbooks: string[];
   price: number;
@@ -408,7 +407,6 @@ export const CAPITAL_PRODUCT: Product = {
   canonicalPath: '/ebooks/le-capital-du-batisseur',
   availability: 'InStock',
   isFeatured: true,
-  isComingSoon: false,
   chariowProductId: process.env.CHARIOW_CAPITAL_PRODUCT_ID || 'captaldubatisseur',
   relatedEbooks: ['le-code-du-batisseur'],
   price: 7990,
@@ -602,105 +600,18 @@ export const CODE_PRODUCT: Product = {
   canonicalPath: '/ebooks/le-code-du-batisseur',
   availability: 'InStock',
   isFeatured: true,
-  isComingSoon: false,
   chariowProductId: process.env.CHARIOW_CODE_PRODUCT_ID || 'codedubatisseur',
   relatedEbooks: ['le-capital-du-batisseur'],
   price: 3995,
   currency: 'XAF',
 };
 
-/**
- * PRODUIT 3 — L'AUDACE DE TRANSCENDER (Prochainement)
- */
-export const AUDACE_PRODUCT: Product = {
-  id: 'ebook-03-audace-de-transcender',
-  slug: 'laudace-de-transcender',
-  title: 'L’Audace de transcender',
-  subtitle: 'Édition Kheops Set en préparation.',
-  tag: 'PROCHAINEMENT',
-  category: 'Dépassement & Discipline',
-  status: 'coming_soon',
-  productType: 'Ebook PDF',
-  priceXaf: 0,
-  isOnSale: false,
-  chariowUrl: '',
-  ctaLabel: 'ÊTRE INFORMÉ À LA SORTIE',
-  ctaSubtext: 'Inscription à la liste d’attente.',
-  coverImage: '/images/monolith-gold-fissure.jpg',
-  coverAlt: 'L’Audace de transcender — Prochainement chez Kheops Set',
-  shortDescription: 'Ouvrage en préparation dans les ateliers Kheops Set.',
-  longDescription: '',
-  pageCount: '',
-  format: 'PDF',
-  language: 'Français',
-  author: 'Kheops Set',
-  benefits: [],
-  tableOfContents: [],
-  whoIsItFor: [],
-  whoIsItNotFor: [],
-  faq: [],
-  seoTitle: 'L’Audace de transcender (Prochainement) | Kheops Set',
-  seoDescription: 'Prochain ouvrage de la marque éditoriale Kheops Set.',
-  canonicalPath: '/ebooks',
-  availability: 'ComingSoon',
-  isFeatured: false,
-  isComingSoon: true,
-  relatedEbooks: [],
-  price: 0,
-  currency: 'XAF',
-};
-
-/**
- * PRODUIT 4 — ÉVEILLE LE CERVEAU ENTREPRENEURIAL (Prochainement)
- */
-export const CERVEAU_PRODUCT: Product = {
-  id: 'ebook-04-eveille-le-cerveau-entrepreneurial',
-  slug: 'eveille-le-cerveau-entrepreneurial',
-  title: 'Éveille le cerveau entrepreneurial',
-  subtitle: 'Édition Kheops Set en préparation.',
-  tag: 'PROCHAINEMENT',
-  category: 'Transition & Stratégie',
-  status: 'coming_soon',
-  productType: 'Ebook PDF',
-  priceXaf: 0,
-  isOnSale: false,
-  chariowUrl: '',
-  ctaLabel: 'ÊTRE INFORMÉ À LA SORTIE',
-  ctaSubtext: 'Inscription à la liste d’attente.',
-  coverImage: '/images/monolith-gold-fissure.jpg',
-  coverAlt: 'Éveille le cerveau entrepreneurial — Prochainement chez Kheops Set',
-  shortDescription: 'Ouvrage en préparation dans les ateliers Kheops Set.',
-  longDescription: '',
-  pageCount: '',
-  format: 'PDF',
-  language: 'Français',
-  author: 'Kheops Set',
-  benefits: [],
-  tableOfContents: [],
-  whoIsItFor: [],
-  whoIsItNotFor: [],
-  faq: [],
-  seoTitle: 'Éveille le cerveau entrepreneurial (Prochainement) | Kheops Set',
-  seoDescription: 'Prochain ouvrage de la marque éditoriale Kheops Set.',
-  canonicalPath: '/ebooks',
-  availability: 'ComingSoon',
-  isFeatured: false,
-  isComingSoon: true,
-  relatedEbooks: [],
-  price: 0,
-  currency: 'XAF',
-};
-
 export const ALL_PRODUCTS: Product[] = [
   CAPITAL_PRODUCT,
   CODE_PRODUCT,
-  AUDACE_PRODUCT,
-  CERVEAU_PRODUCT,
 ];
 
 export const AVAILABLE_PRODUCTS: Product[] = [CAPITAL_PRODUCT, CODE_PRODUCT];
-
-export const COMING_SOON_PRODUCTS: Product[] = [AUDACE_PRODUCT, CERVEAU_PRODUCT];
 
 export function getProductBySlug(slug: string): Product | undefined {
   return ALL_PRODUCTS.find((p) => p.slug === slug);

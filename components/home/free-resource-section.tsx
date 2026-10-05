@@ -117,7 +117,6 @@ export function FreeResourceSection() {
           {/* Right Column: LeadCaptureForm */}
           <div className="lg:col-span-5 w-full">
             <LeadCaptureForm
-              source="protocole-du-batisseur"
               submitLabel="RECEVOIR LE PROTOCOLE"
               redirectOnSuccess={true}
             />
