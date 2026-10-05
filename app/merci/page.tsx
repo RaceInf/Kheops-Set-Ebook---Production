@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: 'Merci — Kheops Set',
   description:
     'Accède à ton Protocole du Bâtisseur ou retrouve les informations concernant ta commande Chariow.',
+  alternates: {
+    canonical: '/merci',
+  },
   robots: {
     index: false,
     follow: true,
