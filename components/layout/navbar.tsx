@@ -71,17 +71,28 @@ export function Navbar() {
           aria-label="Navigation principale"
           className="hidden lg:flex items-center gap-6 text-xs font-medium text-[#A5A5A0]"
         >
-          {NAV_ITEMS.map((item, idx) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`hover:text-[#FFFFFF] transition-colors duration-150 whitespace-nowrap py-1 border-b border-transparent hover:border-[#EEB149] ${
-                idx >= 5 ? 'hidden xl:inline-block' : ''
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item, idx) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== '/' && pathname?.startsWith(item.href));
+
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`transition-colors duration-150 whitespace-nowrap py-1 border-b flex items-center gap-1.5 ${
+                  isActive
+                    ? 'text-[#FFFFFF] border-[#EEB149] font-semibold'
+                    : 'hover:text-[#FFFFFF] border-transparent hover:border-[#EEB149]/60'
+                } ${idx >= 5 ? 'hidden xl:inline-flex' : ''}`}
+              >
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#EEB149]" />
+                )}
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Zone 3: Currency Converter + Primary CTA */}
