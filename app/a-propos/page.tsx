@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { PageImmersion } from '@/components/animations/page-immersion';
 import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
 import { IconCheck } from '@/components/icons/kheops-icons';
+import { ChariowBuyButton } from '@/components/ui/chariow-buy-button';
 
 export const metadata: Metadata = {
   title: 'À propos de Kheops Set — La Philosophie de l’Acier Bienveillant',
@@ -213,14 +214,14 @@ export default function AboutPage() {
             </div>
 
             <div className="space-y-2">
-              <a
+              <ChariowBuyButton
                 href={checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                ctaName="capital_checkout"
+                ctaLocation="product_page"
                 className="inline-block px-8 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
               >
                 PRENDRE LE PLAN
-              </a>
+              </ChariowBuyButton>
               <p className="text-[11px] text-[#A5A5A0] text-center">
                 Paiement et accès via Chariow.
               </p>

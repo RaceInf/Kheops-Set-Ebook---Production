@@ -6,6 +6,7 @@ import { notFound, redirect } from 'next/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { PriceDisplay } from '@/components/ui/price-display';
+import { ChariowBuyButton } from '@/components/ui/chariow-buy-button';
 import { FeaturedBookCard } from '@/components/products/FeaturedBookCard';
 import { BookPreviewReader } from '@/components/products/BookPreviewReader';
 import { ProductDossier } from '@/components/products/ProductDossier';
@@ -316,14 +317,18 @@ export default async function EbookProductPage({ params }: PageProps) {
                 />
 
                 <div className="space-y-3 pt-2 border-t border-[#565A5C]/30">
-                  <a
+                  <ChariowBuyButton
                     href={checkoutUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    ctaName={
+                      ebook.slug === 'le-code-du-batisseur'
+                        ? 'code_checkout'
+                        : 'capital_checkout'
+                    }
+                    ctaLocation="product_page"
                     className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
                   >
                     {ebook.ctaLabel}
-                  </a>
+                  </ChariowBuyButton>
                   <p className="text-xs text-center text-[#A5A5A0]">
                     {ebook.ctaSubtext}
                   </p>
@@ -396,14 +401,18 @@ export default async function EbookProductPage({ params }: PageProps) {
             Prêt à passer à l’exécution ?
           </h2>
           <div className="flex flex-col items-center space-y-3">
-            <a
+            <ChariowBuyButton
               href={checkoutUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              ctaName={
+                ebook.slug === 'le-code-du-batisseur'
+                  ? 'code_checkout'
+                  : 'capital_checkout'
+              }
+              ctaLocation="product_page"
               className="px-10 py-4 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
             >
               {ebook.ctaLabel}
-            </a>
+            </ChariowBuyButton>
             <p className="text-xs text-[#A5A5A0]">{ebook.ctaSubtext}</p>
           </div>
         </div>

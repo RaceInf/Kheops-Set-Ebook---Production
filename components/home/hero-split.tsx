@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getChariowCheckoutUrl, CAPITAL_PRODUCT } from '@/lib/ebooks-data';
 import { useCurrency } from '@/context/currency-context';
 import { IconCheck, IconCrosshair } from '@/components/icons/kheops-icons';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 const LEFT_REALITY_ITEMS = [
   'Le bruit.',
@@ -265,12 +265,17 @@ export function HeroSplit() {
                 href={checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() =>
+                onClick={() => {
+                  trackCtaClick({
+                    cta_name: 'capital_checkout',
+                    cta_location: 'home',
+                    link_url: checkoutUrl,
+                  });
                   trackEvent('click_buy_chariow', {
                     product_slug: CAPITAL_PRODUCT.slug,
                     location: 'hero_split',
-                  })
-                }
+                  });
+                }}
                 className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap"
               >
                 PRENDRE LE PLAN

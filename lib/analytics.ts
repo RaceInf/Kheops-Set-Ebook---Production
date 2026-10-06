@@ -9,6 +9,7 @@ export type KheopsAnalyticsEvent =
   | 'view_product'
   | 'begin_checkout'
   | 'click_buy_chariow'
+  | 'cta_click'
   | 'currency_changed'
   | 'contact_form_submitted';
 
@@ -21,14 +22,50 @@ export interface SafeAnalyticsProps {
   location?: string;
 }
 
+export interface CtaClickParams {
+  cta_name: 'capital_checkout' | 'code_checkout';
+  cta_location: 'home' | 'catalogue' | 'product_page' | string;
+  link_url: string;
+}
+
 declare global {
   interface Window {
     gtag?: (
-      command: 'event',
-      eventName: string,
-      eventParams?: Record<string, string | number | boolean>
+      command: 'event' | 'config' | 'js',
+      eventName: string | Date,
+      eventParams?: Record<string, string | number | boolean | undefined>
     ) => void;
+    dataLayer?: unknown[];
     clarity?: (command: 'event', eventName: string) => void;
+  }
+}
+
+/**
+ * Envoie un événement GA4 custom 'cta_click' à chaque clic sur un bouton d'achat Chariow.
+ * Paramètres :
+ * - cta_name : "capital_checkout" | "code_checkout"
+ * - cta_location : "home" | "catalogue" | "product_page"
+ * - link_url : URL exacte du checkout Chariow
+ * - transport_type: 'beacon'
+ */
+export function trackCtaClick({
+  cta_name,
+  cta_location,
+  link_url,
+}: CtaClickParams): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'cta_click', {
+        cta_name,
+        cta_location,
+        link_url,
+        transport_type: 'beacon',
+      });
+    }
+  } catch {
+    // Silence analytics errors
   }
 }
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 export function FinalCTASection() {
   const checkoutUrl = getChariowCheckoutUrl();
@@ -46,12 +46,17 @@ export function FinalCTASection() {
             href={checkoutUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() =>
+            onClick={() => {
+              trackCtaClick({
+                cta_name: 'capital_checkout',
+                cta_location: 'home',
+                link_url: checkoutUrl,
+              });
               trackEvent('click_buy_chariow', {
                 product_slug: 'le-capital-du-batisseur',
                 location: 'final_cta',
-              })
-            }
+              });
+            }}
             className="px-10 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap"
           >
             PRENDRE LE PLAN

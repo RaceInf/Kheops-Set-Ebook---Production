@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Lock, BookOpen, X } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import { getChariowCheckoutUrl } from '@/lib/products';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 interface BookPreviewReaderProps {
   product: Product;
@@ -22,6 +23,12 @@ export function BookPreviewReader({
 
   const totalPreviewPages = pages.length;
   const currentPage = pages[currentIndex];
+  const pathname = usePathname();
+  const ctaLocation = pathname === '/' ? 'home' : 'product_page';
+  const ctaName =
+    product.slug === 'le-code-du-batisseur'
+      ? 'code_checkout'
+      : 'capital_checkout';
   const checkoutUrl = getChariowCheckoutUrl(product.chariowUrl, product.slug);
 
   const handlePrev = useCallback(() => {
@@ -220,12 +227,17 @@ export function BookPreviewReader({
                       href={checkoutUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() =>
+                      onClick={() => {
+                        trackCtaClick({
+                          cta_name: ctaName,
+                          cta_location: ctaLocation,
+                          link_url: checkoutUrl,
+                        });
                         trackEvent('click_buy_chariow', {
                           product_slug: product.slug,
                           location: 'preview_reader_unlock',
-                        })
-                      }
+                        });
+                      }}
                       className="px-6 py-3 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
                     >
                       {product.ctaLabel} ({product.pageCount} PAGES COMPLÈTES)
@@ -278,12 +290,17 @@ export function BookPreviewReader({
               href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() =>
+              onClick={() => {
+                trackCtaClick({
+                  cta_name: ctaName,
+                  cta_location: ctaLocation,
+                  link_url: checkoutUrl,
+                });
                 trackEvent('click_buy_chariow', {
                   product_slug: product.slug,
                   location: 'preview_reader_footer',
-                })
-              }
+                });
+              }}
               className="inline-flex items-center gap-2 px-5 py-2.5 font-mono text-xs font-semibold bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
             >
               <span>{product.ctaLabel}</span>

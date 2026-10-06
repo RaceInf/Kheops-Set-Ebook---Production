@@ -20,7 +20,7 @@ import {
   IconCheck,
   IconArrowUpRight,
 } from '@/components/icons/kheops-icons';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 export function BookMockupShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -364,12 +364,17 @@ export function BookMockupShowcase() {
                   href={checkoutUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() =>
+                  onClick={() => {
+                    trackCtaClick({
+                      cta_name: 'capital_checkout',
+                      cta_location: 'home',
+                      link_url: checkoutUrl,
+                    });
                     trackEvent('click_buy_chariow', {
                       product_slug: CAPITAL_PRODUCT.slug,
                       location: 'home_showcase',
-                    })
-                  }
+                    });
+                  }}
                   className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150"
                 >
                   {CAPITAL_PRODUCT.ctaLabel}

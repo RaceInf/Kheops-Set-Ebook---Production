@@ -7,7 +7,7 @@ import { AVAILABLE_PRODUCTS, calculatePriceInfo, getChariowCheckoutUrl } from '@
 import { useCurrency } from '@/context/currency-context';
 import { SaleBadge } from '@/components/ui/SaleBadge';
 import { IconArrowUpRight, IconPdf } from '@/components/icons/kheops-icons';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 export function ProductUpsellCards() {
   const { formatPrice, currency, formatBaseXAF } = useCurrency();
@@ -162,12 +162,21 @@ export function ProductUpsellCards() {
                       href={checkoutUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() =>
+                      onClick={() => {
+                        const ctaName =
+                          product.slug === 'le-code-du-batisseur'
+                            ? 'code_checkout'
+                            : 'capital_checkout';
+                        trackCtaClick({
+                          cta_name: ctaName,
+                          cta_location: 'product_page',
+                          link_url: checkoutUrl,
+                        });
                         trackEvent('click_buy_chariow', {
                           product_slug: product.slug,
                           location: 'upsell_card',
-                        })
-                      }
+                        });
+                      }}
                       className="inline-flex items-center justify-center py-3.5 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
                     >
                       {product.ctaLabel}
