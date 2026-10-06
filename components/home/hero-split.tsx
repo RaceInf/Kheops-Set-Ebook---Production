@@ -90,7 +90,7 @@ export function HeroSplit() {
               <span className="text-[#EEB149]">UNE VIE EST UN CHANTIER</span>
             </div>
 
-            <h1
+            <h2
               id="hero-main-heading"
               className="font-display text-3xl sm:text-5xl lg:text-[56px] font-bold tracking-tight text-[#FFFFFF] leading-[1.05]"
               style={{ textWrap: 'balance' }}
@@ -99,7 +99,7 @@ export function HeroSplit() {
               <span className="text-[#EEB149] block sm:inline">
                 Tu manques parfois de plan.
               </span>
-            </h1>
+            </h2>
           </div>
 
           <div className="lg:col-span-4 space-y-4 border-l border-[#565A5C]/40 pl-5">

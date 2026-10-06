@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { FAQSection } from '@/components/home/faq-section';
+import { CategorizedFaq } from '@/components/faq/CategorizedFaq';
 import { HOME_FAQ_ITEMS } from '@/lib/ebooks-data';
 import { FinalCTASection } from '@/components/home/final-cta-section';
 import { PageImmersion } from '@/components/animations/page-immersion';
@@ -73,17 +73,24 @@ export default function FAQPage() {
 
           <div className="space-y-3 border-b border-[#565A5C]/35 pb-8">
             <p className="font-mono text-xs text-[#EEB149] tracking-wider">
-              ASSISTANCE & QUESTIONS FRÉQUENTES
+              POSTE TECHNIQUE // QUESTIONS & PROCÉDURES
             </p>
             <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#FFFFFF]">
               Réponses avant d’agir.
             </h1>
+            <p className="text-base text-[#A5A5A0] max-w-2xl leading-relaxed">
+              Consulte les fiches techniques ci-dessous pour toute question relative au paiement, à la livraison Chariow ou au format de lecture.
+            </p>
           </div>
+
+          {/* Categorized Industrial FAQ */}
+          <section aria-label="Questions catégorisées" className="pt-8 pb-16">
+            <CategorizedFaq />
+          </section>
           </div>
           </PageImmersion>
         </div>
 
-        <FAQSection />
         <FinalCTASection />
       </main>
 

@@ -30,9 +30,16 @@ export function BookCard({ product }: BookCardProps) {
   };
 
   return (
-    <article className="border border-[#565A5C]/50 bg-[#151515] grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-      {/* Left Column: 3D Book Cover */}
-      <div className="lg:col-span-5 bg-[#090909] bg-blueprint-grid-dark p-8 sm:p-10 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-[#565A5C]/35">
+    <article className="border border-[#565A5C]/50 bg-[#151515] grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative">
+      {/* Left Column: 3D Book Cover in Industrial Chamber */}
+      <div className="lg:col-span-5 bg-[#090909] p-8 sm:p-10 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-[#565A5C]/35 relative">
+        <div
+          aria-hidden="true"
+          className="absolute top-3 left-4 font-mono text-[10px] text-[#565A5C] tracking-widest"
+        >
+          REF // {product.slug.toUpperCase()}
+        </div>
+
         <Link
           href={`/ebooks/${product.slug}`}
           className="group relative w-[210px] sm:w-[240px] aspect-[3/4.2] bg-[#090909] border border-[#565A5C]/60 shadow-2xl overflow-hidden flex flex-col justify-between p-6 transition-transform duration-300 hover:-translate-y-1"
@@ -77,14 +84,14 @@ export function BookCard({ product }: BookCardProps) {
         </Link>
       </div>
 
-      {/* Right Column: Product Info, Price & CTA */}
-      <div className="lg:col-span-7 p-6 sm:p-9 lg:p-10 flex flex-col justify-between space-y-7">
+      {/* Right Column: Industrial Product Info, Price & CTA */}
+      <div className="lg:col-span-7 p-6 sm:p-9 lg:p-10 flex flex-col justify-between space-y-7 bg-[#151515]">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
             <span className="px-2.5 py-0.5 bg-[#090909] border border-[#EEB149]/50 text-[#EEB149] font-semibold">
               {product.tag}
             </span>
-            <span className="text-[#A5A5A0]">{product.category.toUpperCase()}</span>
+            <span className="text-[#A5A5A0] font-mono tracking-wider">{product.category.toUpperCase()}</span>
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#FFFFFF]">
@@ -101,29 +108,31 @@ export function BookCard({ product }: BookCardProps) {
           </p>
 
           {/* Specs Bar */}
-          <div className="flex flex-wrap items-center gap-5 py-3 border-y border-[#565A5C]/30 font-mono text-xs text-[#A5A5A0] tabular-nums">
-            <span className="inline-flex items-center gap-2">
-              <IconPdf className="w-4 h-4 text-[#EEB149]" />
-              Format : {product.format}
-            </span>
+          <div className="grid grid-cols-3 gap-2 py-3 border-y border-[#565A5C]/30 font-mono text-xs text-[#A5A5A0] tabular-nums">
+            <div className="p-2.5 bg-[#090909] border border-[#565A5C]/30 flex items-center gap-2">
+              <IconPdf className="w-4 h-4 text-[#EEB149] shrink-0" />
+              <span className="truncate">{product.format}</span>
+            </div>
             {product.pageCount && (
-              <span className="inline-flex items-center gap-2">
-                <IconRuler className="w-4 h-4 text-[#EEB149]" />
-                {product.pageCount} pages
-              </span>
+              <div className="p-2.5 bg-[#090909] border border-[#565A5C]/30 flex items-center gap-2">
+                <IconRuler className="w-4 h-4 text-[#EEB149] shrink-0" />
+                <span className="truncate">{product.pageCount} pages</span>
+              </div>
             )}
-            <span className="inline-flex items-center gap-2">
-              <IconBlueprint className="w-4 h-4 text-[#EEB149]" />
-              Langue : {product.language}
-            </span>
+            <div className="p-2.5 bg-[#090909] border border-[#565A5C]/30 flex items-center gap-2">
+              <IconBlueprint className="w-4 h-4 text-[#EEB149] shrink-0" />
+              <span className="truncate">{product.language}</span>
+            </div>
           </div>
 
           {product.benefits.length > 0 && (
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm text-[#F3F1EB]">
-              {product.benefits.slice(0, 4).map((b) => (
-                <li key={b} className="flex items-start gap-2">
-                  <IconCheck className="w-4 h-4 text-[#EEB149] shrink-0 mt-0.5" />
-                  <span>{b}</span>
+              {product.benefits.slice(0, 4).map((b, bIdx) => (
+                <li key={b} className="flex items-start gap-2.5 p-2 bg-[#090909]/60 border border-[#565A5C]/25">
+                  <span className="font-mono text-[10px] text-[#EEB149] font-bold mt-0.5">
+                    0{bIdx + 1}
+                  </span>
+                  <span className="leading-snug">{b}</span>
                 </li>
               ))}
             </ul>
@@ -157,7 +166,7 @@ export function BookCard({ product }: BookCardProps) {
                 href={`/ebooks/${product.slug}`}
                 className="inline-flex items-center gap-2 px-5 py-3.5 text-xs sm:text-sm font-semibold tracking-wider border border-[#565A5C] text-[#FFFFFF] hover:border-[#FFFFFF] transition-colors whitespace-nowrap"
               >
-                <span>DÉTAILS & SOMMAIRE</span>
+                <span>VOIR LE SOMMAIRE</span>
                 <IconArrowUpRight className="w-4 h-4" />
               </Link>
             </div>

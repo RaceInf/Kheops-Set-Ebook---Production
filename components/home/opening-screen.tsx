@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { CascadeText } from '@/components/ui/cascade-text';
 
 export function OpeningScreen() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -113,7 +114,18 @@ export function OpeningScreen() {
           style={{ textWrap: 'balance' }}
         >
           “Les mots ne construisent rien.
-          <span className="block mt-2 text-[#F3F1EB]">Les actes, oui.”</span>
+          <span className="block mt-2 text-[#F3F1EB]">
+            <CascadeText
+              text="Les actes, oui."
+              as="span"
+              color="inherit"
+              hoverColor="#EEB149"
+              direction="up"
+              duration={0.25}
+              staggerDelay={0.025}
+            />
+            ”
+          </span>
         </p>
 
         {/* Animated Technical Blueprint SVG Line in Gold #EEB149 */}

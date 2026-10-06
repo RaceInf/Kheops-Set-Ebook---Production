@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { BookCard } from '@/components/products/BookCard';
 import { PageImmersion } from '@/components/animations/page-immersion';
+import { ParallaxComponent } from '@/components/ui/parallax-scrolling';
 import { AVAILABLE_PRODUCTS } from '@/lib/products';
 
 export const metadata: Metadata = {
@@ -65,6 +66,13 @@ export default function EbooksCatalogPage() {
               Chaque ouvrage est conçu comme un plan d’exécution court, direct et immédiatement applicable.
             </p>
           </div>
+
+          {/* Salle des Plans Parallax Banner */}
+          <ParallaxComponent
+            tag="SALLE DES PLANS"
+            title="LES OUTILS DE CONSTRUCTION."
+            subtitle="DEUX MANUELS D’EXÉCUTION · ZÉRO THÉORIE SUPERFLUE"
+          />
 
           {/* 1. Produits Disponibles : Le Capital du Bâtisseur & Le Code du Bâtisseur */}
           <section aria-labelledby="available-ebooks-heading" className="space-y-8">

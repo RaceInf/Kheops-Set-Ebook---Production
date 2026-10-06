@@ -8,6 +8,7 @@ import { StickyPlanScene } from '@/components/home/sticky-plan-scene';
 import { BookMockupShowcase } from '@/components/home/book-mockup-showcase';
 import { BookContentsDrawer } from '@/components/home/book-contents-drawer';
 import { FaceToFaceSection } from '@/components/home/face-to-face-section';
+import { ParallaxComponent } from '@/components/ui/parallax-scrolling';
 import { AboutPreviewSection } from '@/components/home/about-preview-section';
 import { FreeResourceSection } from '@/components/home/free-resource-section';
 import { FAQSection } from '@/components/home/faq-section';
@@ -89,6 +90,13 @@ export default function HomePage() {
 
         {/* H. Face-à-Face (Tu choisis ce que tu nourris) */}
         <FaceToFaceSection />
+
+        {/* Transition Parallax Monumentale */}
+        <ParallaxComponent
+          tag="PHILOSOPHIE FONDATRICE"
+          title="UNE VIE EST UN CHANTIER."
+          subtitle="DES DÉCISIONS SIMPLES, RÉPÉTÉES LONGTEMPS · KHEOPS SET"
+        />
 
         {/* I. À propos de Kheops Set */}
         <AboutPreviewSection />

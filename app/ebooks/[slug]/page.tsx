@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { FeaturedBookCard } from '@/components/products/FeaturedBookCard';
 import { BookPreviewReader } from '@/components/products/BookPreviewReader';
-import { FAQSection } from '@/components/home/faq-section';
+import { ProductExecutionTabs } from '@/components/products/ProductExecutionTabs';
 import {
   getProductBySlug,
   getChariowCheckoutUrl,
@@ -327,114 +327,15 @@ export default async function EbookProductPage({ params }: PageProps) {
                   </p>
                 </div>
               </div>
-
-              {/* Ce que tu vas apprendre */}
-              <div className="space-y-4 pt-4">
-                <h2 className="font-display text-2xl font-bold text-[#FFFFFF]">
-                  Ce que tu vas apprendre
-                </h2>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {ebook.benefits.map((benefit) => (
-                    <li
-                      key={benefit}
-                      className="p-4 bg-[#151515] border border-[#565A5C]/35 flex items-start gap-3 text-sm text-[#F3F1EB]"
-                    >
-                      <IconCheck className="w-4 h-4 text-[#EEB149] shrink-0 mt-0.5" />
-                      <span>{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </div>
 
-          {/* Sommaire complet (Table of Contents) */}
-          <section
-            aria-labelledby="toc-heading"
-            className="py-12 space-y-10 border-b border-[#565A5C]/35"
-          >
-            <div className="space-y-2">
-              <p className="font-mono text-xs text-[#EEB149]">
-                PLAN DE CONSTRUCTION · {ebook.pageCount} PAGES
-              </p>
-              <h2 id="toc-heading" className="font-display text-3xl font-bold text-[#FFFFFF]">
-                Sommaire complet du livre
-              </h2>
-            </div>
-
-            <div className="divide-y divide-[#565A5C]/30 border border-[#565A5C]/45 bg-[#151515]">
-              {ebook.tableOfContents.map((chap) => (
-                <div key={chap.chapterNumber} className="p-6 sm:p-7 space-y-2">
-                  {chap.partTitle && (
-                    <div className="pb-3 mb-3 border-b border-[#565A5C]/25">
-                      <p className="font-mono text-xs text-[#EEB149] font-semibold">
-                        {chap.partNumber} — {chap.partTitle}
-                      </p>
-                      {chap.partSubtitle && (
-                        <p className="text-xs text-[#A5A5A0] mt-0.5">{chap.partSubtitle}</p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-                    <h3 className="font-display text-lg sm:text-xl font-bold text-[#FFFFFF]">
-                      <span className="font-mono text-xs text-[#EEB149] mr-3 tabular-nums">
-                        [{chap.chapterNumber}]
-                      </span>
-                      {chap.title}
-                    </h3>
-                    {chap.page && (
-                      <span className="font-mono text-xs text-[#A5A5A0] tabular-nums shrink-0">
-                        PAGE {chap.page}
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-sm text-[#A5A5A0] sm:pl-9 leading-relaxed">
-                    {chap.summary}
-                  </p>
-                </div>
-              ))}
-            </div>
+          {/* Core Interactive Dossier: ProductExecutionTabs */}
+          <section aria-label="Dossier d’exécution technique du livre" className="pt-8">
+            <ProductExecutionTabs product={ebook} />
           </section>
 
-          {/* Ce livre est fait pour toi si... / Ce livre n'est pas fait pour toi si... */}
-          <section
-            aria-label="À qui s'adresse ce livre"
-            className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-[#565A5C]/35"
-          >
-            <div className="p-8 border border-[#EEB149]/50 bg-[#151515] space-y-6">
-              <h2 className="font-display text-2xl font-bold text-[#FFFFFF]">
-                Ce livre est fait pour toi si…
-              </h2>
-              <ul className="space-y-3.5 text-sm sm:text-base text-[#F3F1EB]">
-                {ebook.whoIsItFor.map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <IconCheck className="w-4 h-4 text-[#EEB149] shrink-0 mt-1" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-8 border border-[#565A5C]/40 bg-[#090909] space-y-6">
-              <h2 className="font-display text-2xl font-bold text-[#A5A5A0]">
-                Ce livre n’est pas fait pour toi si…
-              </h2>
-              <ul className="space-y-3.5 text-sm sm:text-base text-[#A5A5A0]">
-                {ebook.whoIsItNotFor.map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <span aria-hidden="true" className="font-mono text-xs text-[#565A5C] mt-1">
-                      ×
-                    </span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          {/* Liseuse d'aperçu interactive (non téléchargeable avec filigrane central KHEOPS SET) */}
+          {/* Liseuse d'aperçu interactive */}
           {ebook.previewPages && ebook.previewPages.length > 0 && (
             <div className="py-12 border-b border-[#565A5C]/35">
               <BookPreviewReader product={ebook} id="apercu-liseuse" />
@@ -465,7 +366,7 @@ export default async function EbookProductPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* Produit réel associé (Le Code du Bâtisseur <-> Le Capital du Bâtisseur) */}
+          {/* Produit réel associé */}
           {relatedProducts.length > 0 && (
             <section aria-labelledby="related-book-heading" className="py-12 space-y-6">
               <div className="space-y-1">
@@ -486,9 +387,6 @@ export default async function EbookProductPage({ params }: PageProps) {
             </section>
           )}
         </div>
-
-        {/* Product FAQ */}
-        <FAQSection items={ebook.faq} />
 
         {/* Bottom Product CTA */}
         <div className="mx-auto max-w-[920px] px-4 pt-16 text-center space-y-6">

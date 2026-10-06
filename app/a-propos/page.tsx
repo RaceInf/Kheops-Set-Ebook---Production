@@ -97,57 +97,86 @@ export default function AboutPage() {
             </p>
           </header>
 
-          {/* Meaning of the Name & Anonymity */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="p-8 bg-[#151515] border border-[#565A5C]/40 space-y-4">
-              <p className="font-mono text-xs text-[#EEB149]">01 · KHEOPS</p>
-              <h2 className="font-display text-2xl font-bold text-[#FFFFFF]">
-                L’édifice qui traverse le temps
-              </h2>
-              <p className="text-sm sm:text-base text-[#F3F1EB] leading-relaxed">
-                Le nom « Kheops » rappelle qu’une œuvre durable ne se bâtit pas avec de l’agitation, mais avec de la précision, des fondations solides et des briques posées l’une après l’autre.
-              </p>
+          {/* Meaning of the Name & Anonymity in Industrial Panels */}
+          <section className="space-y-6">
+            <div className="flex items-center justify-between border-b border-[#565A5C]/40 pb-3 font-mono text-xs text-[#EEB149]">
+              <span>[DOC-01] IDENTITÉ & SENS DE LA STRUCTURE</span>
+              <span className="text-[#A5A5A0]">ARCHIVE INTERNE</span>
             </div>
 
-            <div className="p-8 bg-[#151515] border border-[#565A5C]/40 space-y-4">
-              <p className="font-mono text-xs text-[#EEB149]">02 · SET</p>
-              <h2 className="font-display text-2xl font-bold text-[#FFFFFF]">
-                La structure et le cadre
-              </h2>
-              <p className="text-sm sm:text-base text-[#F3F1EB] leading-relaxed">
-                « Set » désigne la structure, l’ancrage et le système de décision. Quand l’émotion baisse, c’est la structure qui maintient le cap.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-8 bg-[#151515] border border-[#565A5C]/50 space-y-4 relative overflow-hidden">
+                <div
+                  aria-hidden="true"
+                  className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#EEB149]/10 to-transparent pointer-events-none"
+                />
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs text-[#EEB149] px-2.5 py-1 bg-[#090909] border border-[#EEB149]/40 font-bold">
+                    01 // KHEOPS
+                  </span>
+                  <span className="font-mono text-[10px] text-[#A5A5A0]">DURABILITÉ</span>
+                </div>
+                <h2 className="font-display text-2xl font-bold text-[#FFFFFF]">
+                  L’édifice qui traverse le temps
+                </h2>
+                <p className="text-sm sm:text-base text-[#F3F1EB] leading-relaxed">
+                  Le nom « Kheops » rappelle qu’une œuvre durable ne se bâtit pas avec de l’agitation, mais avec de la précision, des fondations solides et des briques posées l’une après l’autre.
+                </p>
+              </div>
+
+              <div className="p-8 bg-[#151515] border border-[#565A5C]/50 space-y-4 relative overflow-hidden">
+                <div
+                  aria-hidden="true"
+                  className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#565A5C]/10 to-transparent pointer-events-none"
+                />
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs text-[#EEB149] px-2.5 py-1 bg-[#090909] border border-[#EEB149]/40 font-bold">
+                    02 // SET
+                  </span>
+                  <span className="font-mono text-[10px] text-[#A5A5A0]">CADRE & SYSTÈME</span>
+                </div>
+                <h2 className="font-display text-2xl font-bold text-[#FFFFFF]">
+                  La structure et le cadre
+                </h2>
+                <p className="text-sm sm:text-base text-[#F3F1EB] leading-relaxed">
+                  « Set » désigne la structure, l’ancrage et le système de décision. Quand l’émotion baisse, c’est la structure qui maintient le cap et permet d’exécuter.
+                </p>
+              </div>
             </div>
           </section>
 
-          {/* Philosophy: L'Acier Bienveillant */}
-          <section className="space-y-8 bg-[#F3F1EB] text-[#090909] p-8 sm:p-12 border border-[#090909]">
-            <div className="space-y-3">
-              <p className="font-mono text-xs text-[#565A5C]">LA PHILOSOPHIE</p>
-              <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#090909]">
-                L’Acier Bienveillant
-              </h2>
-              <p className="text-base sm:text-lg text-[#151515] leading-relaxed">
-                Être exigeant sans jamais mépriser. Parler des décisions et des systèmes pour permettre à chacun de reprendre la main sur sa trajectoire.
+          {/* Philosophy: L'Acier Bienveillant - Industrial Manifest Panel */}
+          <section className="space-y-8 p-8 sm:p-12 bg-[#151515] border border-[#EEB149]/50">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#565A5C]/40 pb-6">
+              <div className="space-y-2">
+                <p className="font-mono text-xs text-[#EEB149] tracking-wider">
+                  CHARTE OPÉRATIONNELLE
+                </p>
+                <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#FFFFFF]">
+                  L’Acier Bienveillant
+                </h2>
+              </div>
+              <p className="font-mono text-xs text-[#A5A5A0] max-w-sm">
+                Exigeant sans mépriser. Focalisé sur les décisions et les systèmes mesurables.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {PILLARS.map((pillar) => (
                 <div
                   key={pillar.number}
-                  className="p-6 bg-[#FFFFFF] border border-[#565A5C]/35 space-y-2.5"
+                  className="p-6 bg-[#090909] border border-[#565A5C]/40 space-y-3 relative group hover:border-[#EEB149]/60 transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-semibold px-2 py-0.5 bg-[#090909] text-[#EEB149]">
-                      {pillar.number}
+                    <span className="font-mono text-xs font-bold px-2.5 py-1 bg-[#151515] border border-[#EEB149]/50 text-[#EEB149]">
+                      PILIER // {pillar.number}
                     </span>
-                    <IconCheck className="w-4 h-4 text-[#090909]" />
+                    <IconCheck className="w-4 h-4 text-[#EEB149]" />
                   </div>
-                  <h3 className="font-display text-xl font-bold text-[#090909]">
+                  <h3 className="font-display text-xl font-bold text-[#FFFFFF]">
                     {pillar.title}
                   </h3>
-                  <p className="text-sm text-[#151515] leading-relaxed">{pillar.text}</p>
+                  <p className="text-sm text-[#A5A5A0] leading-relaxed">{pillar.text}</p>
                 </div>
               ))}
             </div>
