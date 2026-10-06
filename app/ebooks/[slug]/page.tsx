@@ -318,6 +318,8 @@ export default async function EbookProductPage({ params }: PageProps) {
                 <div className="space-y-3 pt-2 border-t border-[#565A5C]/30">
                   <a
                     href={checkoutUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
                   >
                     {ebook.ctaLabel}
@@ -396,6 +398,8 @@ export default async function EbookProductPage({ params }: PageProps) {
           <div className="flex flex-col items-center space-y-3">
             <a
               href={checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-10 py-4 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
             >
               {ebook.ctaLabel}

@@ -163,27 +163,28 @@ export function calculatePriceInfo(product: {
   };
 }
 
+export const OFFICIAL_CHARIOW_CAPITAL_CHECKOUT =
+  'https://fovqbyzx.mychariow.shop/captaldubatisseur/checkout';
+export const OFFICIAL_CHARIOW_CODE_CHECKOUT =
+  'https://fovqbyzx.mychariow.shop/codedubatisseur/checkout';
+
 const DEFAULT_CAPITAL_CHARIOW_URL =
+  process.env.NEXT_PUBLIC_CHARIOW_CAPITAL_URL ||
   process.env.NEXT_PUBLIC_CHARIOW_MAIN_URL ||
-  'https://fovqbyzx.mychariow.shop/captaldubatisseur';
+  OFFICIAL_CHARIOW_CAPITAL_CHECKOUT;
 
 const DEFAULT_CODE_CHARIOW_URL =
   process.env.NEXT_PUBLIC_CHARIOW_CODE_URL ||
-  'https://fovqbyzx.mychariow.shop/codedubatisseur';
+  OFFICIAL_CHARIOW_CODE_CHECKOUT;
 
 export function getChariowCheckoutUrl(
   baseUrl: string = DEFAULT_CAPITAL_CHARIOW_URL,
-  campaign: string = 'capital-du-batisseur'
+  slug?: string
 ): string {
-  try {
-    const url = new URL(baseUrl);
-    url.searchParams.set('utm_source', 'site');
-    url.searchParams.set('utm_medium', 'referral');
-    url.searchParams.set('utm_campaign', campaign);
-    return url.toString();
-  } catch {
-    return baseUrl;
+  if (slug === 'le-code-du-batisseur' || (baseUrl && baseUrl.includes('codedubatisseur'))) {
+    return DEFAULT_CODE_CHARIOW_URL;
   }
+  return DEFAULT_CAPITAL_CHARIOW_URL;
 }
 
 /**

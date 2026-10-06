@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { CurrencySelector } from '@/components/ui/currency-selector';
 import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
+import { trackEvent } from '@/lib/analytics';
 
 const NAV_ITEMS = [
   { label: 'Accueil', href: '/' },
@@ -81,6 +82,14 @@ export function Navbar() {
 
           <a
             href={checkoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent('click_buy_chariow', {
+                product_slug: 'le-capital-du-batisseur',
+                location: 'navbar_desktop',
+              })
+            }
             className="px-3.5 sm:px-4 py-2 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap shrink-0"
           >
             PRENDRE LE PLAN
@@ -127,7 +136,15 @@ export function Navbar() {
             <div className="space-y-1.5">
               <a
                 href={checkoutUrl}
-                onClick={() => setMobileMenuOpen(false)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent('click_buy_chariow', {
+                    product_slug: 'le-capital-du-batisseur',
+                    location: 'navbar_mobile',
+                  });
+                  setMobileMenuOpen(false);
+                }}
                 className="flex items-center justify-center w-full py-3 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
               >
                 PRENDRE LE PLAN

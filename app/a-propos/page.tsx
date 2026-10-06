@@ -215,6 +215,8 @@ export default function AboutPage() {
             <div className="space-y-2">
               <a
                 href={checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block px-8 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
               >
                 PRENDRE LE PLAN

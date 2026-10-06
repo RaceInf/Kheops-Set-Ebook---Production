@@ -176,14 +176,3 @@ export function requireChariowWebhookConfig() {
     '/api/webhooks/chariow'
   );
 }
-
-/**
- * Exige la configuration pour le checkout serveur (usage futur)
- */
-export function requireCheckoutConfig() {
-  return checkKeys<{
-    CHARIOW_API_KEY: string;
-    UPSTASH_REDIS_REST_URL: string;
-    UPSTASH_REDIS_REST_TOKEN: string;
-  }>(['CHARIOW_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'], '/api/checkout');
-}

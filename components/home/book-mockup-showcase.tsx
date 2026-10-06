@@ -362,6 +362,8 @@ export function BookMockupShowcase() {
               <div className="space-y-2.5 pt-2 border-t border-[#565A5C]/30">
                 <a
                   href={checkoutUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() =>
                     trackEvent('click_buy_chariow', {
                       product_slug: CAPITAL_PRODUCT.slug,

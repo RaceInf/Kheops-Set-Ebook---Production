@@ -156,6 +156,8 @@ export function BookCard({ product }: BookCardProps) {
             <div className="flex flex-wrap items-center gap-3.5">
               <a
                 href={checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={handleBuyClick}
                 className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
               >

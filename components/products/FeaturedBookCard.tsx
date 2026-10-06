@@ -96,6 +96,8 @@ export function FeaturedBookCard({ product }: FeaturedBookCardProps) {
           <div className="flex flex-wrap items-center gap-3">
             <a
               href={checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() =>
                 trackEvent('click_buy_chariow', {
                   product_slug: product.slug,

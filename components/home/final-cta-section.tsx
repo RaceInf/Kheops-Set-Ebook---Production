@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
+import { trackEvent } from '@/lib/analytics';
 
 export function FinalCTASection() {
   const checkoutUrl = getChariowCheckoutUrl();
@@ -41,6 +44,14 @@ export function FinalCTASection() {
         <div className="flex flex-col items-center space-y-4 pt-2">
           <a
             href={checkoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent('click_buy_chariow', {
+                product_slug: 'le-capital-du-batisseur',
+                location: 'final_cta',
+              })
+            }
             className="px-10 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap"
           >
             PRENDRE LE PLAN
