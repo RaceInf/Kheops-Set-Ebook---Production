@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { CategorizedFaq } from '@/components/faq/CategorizedFaq';
+import { FAQSection } from '@/components/home/faq-section';
 import { HOME_FAQ_ITEMS } from '@/lib/ebooks-data';
 import { FinalCTASection } from '@/components/home/final-cta-section';
 import { PageImmersion } from '@/components/animations/page-immersion';
@@ -83,10 +83,10 @@ export default function FAQPage() {
             </p>
           </div>
 
-          {/* Categorized Industrial FAQ */}
-          <section aria-label="Questions catégorisées" className="pt-8 pb-16">
-            <CategorizedFaq />
-          </section>
+          {/* FAQ Accordions */}
+          <div className="pt-4 pb-8">
+            <FAQSection items={HOME_FAQ_ITEMS} />
+          </div>
           </div>
           </PageImmersion>
         </div>

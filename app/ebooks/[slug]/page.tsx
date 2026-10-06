@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { FeaturedBookCard } from '@/components/products/FeaturedBookCard';
 import { BookPreviewReader } from '@/components/products/BookPreviewReader';
-import { ProductExecutionTabs } from '@/components/products/ProductExecutionTabs';
+import { ProductDossier } from '@/components/products/ProductDossier';
 import {
   getProductBySlug,
   getChariowCheckoutUrl,
@@ -330,9 +330,9 @@ export default async function EbookProductPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Core Interactive Dossier: ProductExecutionTabs */}
+          {/* Core Interactive Dossier: ProductDossier */}
           <section aria-label="Dossier d’exécution technique du livre" className="pt-8">
-            <ProductExecutionTabs product={ebook} />
+            <ProductDossier product={ebook} />
           </section>
 
           {/* Liseuse d'aperçu interactive */}
