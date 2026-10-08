@@ -35,7 +35,7 @@ export function PriceDisplay({
   size = 'lg',
   className = '',
 }: PriceDisplayProps) {
-  const { formatPrice, formatBaseXAF, currency } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
 
   const priceInfo = calculatePriceInfo({
     priceXaf: originalPriceXaf ?? amountInXAF,
@@ -52,9 +52,6 @@ export function PriceDisplay({
       ? formatPrice(priceInfo.originalPriceXaf, currency)
       : null;
 
-  const baseXafReference =
-    currency !== 'XAF' ? formatBaseXAF(priceInfo.activePriceXaf) : null;
-
   return (
     <div className={`space-y-2.5 ${className}`}>
       {/* Ligne supérieure : Prix barré dans la devise choisie + Badge PROMO -20,1 % */}
@@ -70,7 +67,7 @@ export function PriceDisplay({
         </div>
       )}
 
-      {/* Ligne principale : Prix actif dans la devise sélectionnée + Référence XAF si autre devise + Sélecteur */}
+      {/* Ligne principale : Prix actif dans la devise sélectionnée uniquement + Sélecteur */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-baseline gap-3 font-mono tabular-nums">
           <span
@@ -84,12 +81,6 @@ export function PriceDisplay({
           >
             {primaryActiveFormatted}
           </span>
-
-          {baseXafReference && (
-            <span className="text-xs sm:text-sm text-[#A5A5A0] font-normal">
-              ({baseXafReference})
-            </span>
-          )}
         </div>
 
         {showSelector && <CurrencySwitcher variant="inline" />}

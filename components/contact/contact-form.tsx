@@ -139,9 +139,10 @@ export function ContactForm() {
             id="contact-name"
             type="text"
             required
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors"
+            className="w-full min-h-[44px] bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] focus-visible:ring-1 focus-visible:ring-[#EEB149] transition-colors"
             placeholder="Ton nom"
           />
         </div>
@@ -157,9 +158,10 @@ export function ContactForm() {
             id="contact-email"
             type="email"
             required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors"
+            className="w-full min-h-[44px] bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] focus-visible:ring-1 focus-visible:ring-[#EEB149] transition-colors"
             placeholder="ton.email@exemple.com"
           />
         </div>
@@ -178,7 +180,7 @@ export function ContactForm() {
           required
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors"
+          className="w-full min-h-[44px] bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] focus-visible:ring-1 focus-visible:ring-[#EEB149] transition-colors"
           placeholder="Objet de ton message"
         />
       </div>
@@ -196,7 +198,7 @@ export function ContactForm() {
           rows={6}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] transition-colors resize-none"
+          className="w-full bg-[#090909] border border-[#565A5C]/50 px-4 py-3 text-sm text-[#F3F1EB] focus:outline-none focus:border-[#EEB149] focus-visible:ring-1 focus-visible:ring-[#EEB149] transition-colors resize-none"
           placeholder="Écris ton message avec précision..."
         />
       </div>
@@ -212,6 +214,7 @@ export function ContactForm() {
       <div aria-live="polite">
         {feedback && (
           <div
+            role={status === 'error' ? 'alert' : 'status'}
             className={`p-4 border text-xs font-mono ${
               status === 'success'
                 ? 'bg-[#EEB149]/10 border-[#EEB149]/40 text-[#EEB149]'
@@ -226,7 +229,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={isSubmitDisabled}
-        className={`w-full py-4 px-8 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-200 ${
+        className={`w-full min-h-[48px] py-4 px-8 font-mono text-xs font-bold tracking-widest uppercase transition-all duration-200 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EEB149] ${
           isSubmitDisabled
             ? 'bg-[#151515] border border-[#565A5C]/40 text-[#A5A5A0]/60 cursor-not-allowed'
             : 'bg-[#EEB149] hover:bg-[#EEB149]/90 text-[#090909] cursor-pointer shadow-lg hover:shadow-[#EEB149]/20'
@@ -242,8 +245,12 @@ export function ContactForm() {
         )}
       </button>
 
-      <p className="text-[11px] font-mono text-[#A5A5A0]/80 text-center">
-        🔒 Vos coordonnées restent strictement confidentielles.
+      <p className="text-[11px] font-mono text-[#A5A5A0]/80 text-center flex items-center justify-center gap-1.5">
+        <svg className="w-3.5 h-3.5 text-[#EEB149] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <rect x="5" y="11" width="14" height="10" />
+          <path d="M8 11V7C8 4.79086 9.79086 3 12 3V3C14.2091 3 16 4.79086 16 7V11" />
+        </svg>
+        <span>Vos coordonnées restent strictement confidentielles.</span>
       </p>
     </form>
   );

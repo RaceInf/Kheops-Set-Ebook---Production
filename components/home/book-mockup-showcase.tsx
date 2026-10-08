@@ -380,17 +380,13 @@ export function BookMockupShowcase() {
                   {CAPITAL_PRODUCT.ctaLabel}
                 </a>
 
-                <button
-                  type="button"
-                  onClick={handleTogglePreview}
-                  aria-expanded={isPreviewOpen}
-                  aria-controls="liseuse-capital-accueil"
-                  className="flex items-center justify-center w-full py-3 px-6 font-mono text-xs font-semibold tracking-wider border border-[#565A5C]/60 bg-[#090909] text-[#F3F1EB] hover:border-[#EEB149] hover:text-[#EEB149] transition-colors duration-150 cursor-pointer"
+                <Link
+                  href="/ebooks/le-capital-du-batisseur"
+                  className="flex items-center justify-center gap-1.5 w-full py-3 px-6 font-mono text-xs font-semibold tracking-wider border border-[#565A5C]/60 bg-[#090909] text-[#F3F1EB] hover:border-[#EEB149] hover:text-[#EEB149] transition-colors duration-150 whitespace-nowrap"
                 >
-                  {isPreviewOpen
-                    ? 'FERMER L’APERÇU GRATUIT'
-                    : 'FEUILLETER UN EXTRAIT GRATUIT'}
-                </button>
+                  <span>EN SAVOIR PLUS</span>
+                  <IconArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
 
                 <p className="text-xs text-center text-[#A5A5A0]">
                   {CAPITAL_PRODUCT.ctaSubtext}

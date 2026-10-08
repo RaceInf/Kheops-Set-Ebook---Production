@@ -26,9 +26,11 @@
     background-color: #090909;
     color: #FFFFFF;
     scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -110,6 +112,18 @@
 
 .animate-marquee-right {
   animation: kheops-marquee-right 42s linear infinite;
+}
+
+/* UI/UX Pro Max: WCAG pause auto-scrolling content on hover or keyboard focus */
+.marquee-container:hover .animate-marquee-left,
+.marquee-container:hover .animate-marquee-right,
+.marquee-container:focus-within .animate-marquee-left,
+.marquee-container:focus-within .animate-marquee-right,
+[role="region"]:hover .animate-marquee-left,
+[role="region"]:hover .animate-marquee-right,
+[role="region"]:focus-within .animate-marquee-left,
+[role="region"]:focus-within .animate-marquee-right {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {

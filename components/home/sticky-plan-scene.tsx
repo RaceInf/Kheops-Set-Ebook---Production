@@ -231,13 +231,19 @@ export function StickyPlanScene() {
                   </div>
 
                   {/* Step Title & Core Copy */}
-                  <div className="space-y-3">
-                    <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#090909]">
-                      {step.number}. {step.title}
+                  <div className="space-y-3.5">
+                    <div className="flex items-center gap-2 font-mono text-xs text-[#565A5C]">
+                      <span className="text-[#EEB149] font-bold bg-[#090909] px-2 py-0.5">ÉTAPE {step.number}</span>
+                      <span>//</span>
+                      <span className="uppercase tracking-wider font-semibold text-[#090909]">{step.metric}</span>
+                    </div>
+
+                    <h3 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#090909]">
+                      {step.title}
                     </h3>
 
-                    <p className="text-lg sm:text-xl font-medium text-[#151515] leading-snug">
-                      “{step.description}”
+                    <p className="font-display text-base sm:text-lg text-[#151515] font-medium leading-relaxed border-l-2 border-[#090909] pl-4 py-0.5">
+                      {step.description}
                     </p>
                   </div>
 

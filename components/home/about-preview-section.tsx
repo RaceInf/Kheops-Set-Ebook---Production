@@ -14,8 +14,6 @@ export function AboutPreviewSection() {
           <div className="lg:col-span-7 space-y-5">
             <div className="flex items-center gap-2 text-xs font-mono text-[#A5A5A0]">
               <span>SECTION I · IDENTITÉ ÉDITORIALE</span>
-              <span aria-hidden="true">·</span>
-              <span className="text-[#EEB149]">ANONYMAT VOLONTAIRE</span>
             </div>
 
             <h2
@@ -40,7 +38,7 @@ export function AboutPreviewSection() {
                 href="/a-propos"
                 className="inline-flex items-center gap-2.5 px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider border border-[#EEB149] text-[#EEB149] hover:bg-[#EEB149] hover:text-[#090909] transition-colors whitespace-nowrap"
               >
-                <span>DÉCOUVRIR LE CODE</span>
+                <span>DÉCOUVRIR LE MANIFESTE</span>
                 <IconArrowUpRight className="w-4 h-4" />
               </Link>
             </div>

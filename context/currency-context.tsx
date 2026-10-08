@@ -5,6 +5,7 @@ import type { CurrencyCode } from '@/lib/products';
 
 interface CurrencyRates {
   XAF: number;
+  XOF: number;
   EUR: number;
   USD: number;
 }
@@ -20,6 +21,7 @@ interface CurrencyContextValue {
 
 const DEFAULT_RATES: CurrencyRates = {
   XAF: 1,
+  XOF: 1,
   EUR: 1 / 655.957,
   USD: 1 / 604.5,
 };
@@ -38,7 +40,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     const frameId = requestAnimationFrame(() => {
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
-        if (saved && ['XAF', 'EUR', 'USD'].includes(saved)) {
+        if (saved && ['XAF', 'XOF', 'EUR', 'USD'].includes(saved)) {
           setCurrencyState(saved);
         }
       } catch {
@@ -87,6 +89,16 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     (amountInXAF: number, target: CurrencyCode = currency): string => {
       if (target === 'XAF') {
         return formatBaseXAF(amountInXAF);
+      }
+
+      if (target === 'XOF') {
+        const formattedNumber = new Intl.NumberFormat('fr-FR', {
+          maximumFractionDigits: 0,
+        })
+          .format(Math.round(amountInXAF))
+          .replace(/\u202f/g, ' ')
+          .replace(/\u00a0/g, ' ');
+        return `${formattedNumber} XOF`;
       }
 
       const rate = rates[target] ?? DEFAULT_RATES[target];

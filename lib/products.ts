@@ -1,4 +1,4 @@
-export type CurrencyCode = 'XAF' | 'EUR' | 'USD';
+export type CurrencyCode = 'XAF' | 'XOF' | 'EUR' | 'USD';
 
 export type ProductStatus = 'available';
 
@@ -196,7 +196,7 @@ export const CAPITAL_PRODUCT: Product = {
   title: 'Le Capital du Bâtisseur',
   subtitle: "S'affranchir du paraître, de la dette familiale et de l'illusion du salaire.",
   tag: 'LE PLAN PRINCIPAL',
-  category: 'Ingénierie financière & Décision',
+  category: 'Finance & Décision',
   status: 'available',
   productType: 'Ebook PDF',
   priceXaf: 10000,
@@ -205,7 +205,7 @@ export const CAPITAL_PRODUCT: Product = {
   salePercentage: 20.1,
   isOnSale: true,
   chariowUrl: DEFAULT_CAPITAL_CHARIOW_URL,
-  ctaLabel: 'PRENDRE LE PLAN',
+  ctaLabel: 'PROFITER DE L’OFFRE',
   ctaSubtext: 'Paiement et accès via Chariow.',
   coverImage: '/images/monolith-gold-fissure.jpg',
   coverAlt:
@@ -432,7 +432,7 @@ export const CODE_PRODUCT: Product = {
   salePercentage: 20.1,
   isOnSale: true,
   chariowUrl: DEFAULT_CODE_CHARIOW_URL,
-  ctaLabel: 'VOIR LE CODE',
+  ctaLabel: 'PROFITER DE L’OFFRE',
   ctaSubtext: 'Paiement et accès via Chariow.',
   coverImage: '/images/code-batisseur-cover.jpg',
   coverAlt:

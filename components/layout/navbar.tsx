@@ -51,6 +51,18 @@ export function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen]);
 
+  // UI/UX Pro Max: Lock background body scroll when mobile navigation drawer is active
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 border-b border-[#565A5C]/30 bg-[#090909]/88 backdrop-blur-md ${
@@ -80,7 +92,8 @@ export function Navbar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`transition-colors duration-150 whitespace-nowrap py-1 border-b flex items-center gap-1.5 ${
+                aria-current={isActive ? 'page' : undefined}
+                className={`transition-colors duration-150 whitespace-nowrap py-1 border-b flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:border-[#EEB149] ${
                   isActive
                     ? 'text-[#FFFFFF] border-[#EEB149] font-semibold'
                     : 'hover:text-[#FFFFFF] border-transparent hover:border-[#EEB149]/60'
@@ -116,7 +129,7 @@ export function Navbar() {
                 location: 'navbar_desktop',
               });
             }}
-            className="px-3.5 sm:px-4 py-2 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap shrink-0"
+            className="px-3.5 sm:px-4 py-2 min-h-[38px] inline-flex items-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] active:scale-[0.98] transition-all duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EEB149]"
           >
             PRENDRE LE PLAN
           </a>
@@ -127,7 +140,7 @@ export function Navbar() {
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-navigation-drawer"
             aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-            className="lg:hidden inline-flex items-center justify-center w-10 h-10 border border-[#565A5C]/40 text-[#FFFFFF] hover:border-[#EEB149] transition-colors"
+            className="lg:hidden inline-flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] border border-[#565A5C]/40 text-[#FFFFFF] hover:border-[#EEB149] active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EEB149]"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>

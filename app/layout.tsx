@@ -86,10 +86,37 @@ export default function RootLayout({
       lang="fr"
       className={`${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.addEventListener('error', function(e) {
+                  var msg = e && e.message ? String(e.message) : '';
+                  if (msg.indexOf('ChunkLoadError') !== -1 || msg.indexOf('Loading chunk') !== -1 || (msg.indexOf('timeout') !== -1 && msg.indexOf('chunk') !== -1)) {
+                    var lastReload = sessionStorage.getItem('kheops_chunk_reload');
+                    var now = Date.now();
+                    if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+                      sessionStorage.setItem('kheops_chunk_reload', String(now));
+                      window.location.reload();
+                    }
+                  }
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body
         suppressHydrationWarning
         className="font-sans bg-[#090909] text-[#FFFFFF] antialiased selection:bg-[#EEB149] selection:text-[#090909]"
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-[#EEB149] focus:text-[#090909] font-mono text-xs font-bold border border-[#090909] shadow-xl focus:outline-none"
+        >
+          Passer au contenu principal
+        </a>
         <CurrencyProvider>
           <PrivacyAnalytics />
           {children}

@@ -65,7 +65,7 @@ const BOOK_DRAWERS: ContentDrawerItem[] = [
 ];
 
 export function BookContentsDrawer() {
-  const [openIds, setOpenIds] = useState<string[]>(['01', '02']);
+  const [openIds, setOpenIds] = useState<string[]>([]);
 
   const toggleDrawer = (id: string) => {
     setOpenIds((prev) =>
@@ -105,7 +105,7 @@ export function BookContentsDrawer() {
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={expandAll}

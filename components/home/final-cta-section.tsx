@@ -1,12 +1,11 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
 import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 export function FinalCTASection() {
-  const checkoutUrl = getChariowCheckoutUrl();
-
   return (
     <section
       id="decision-finale"
@@ -42,38 +41,12 @@ export function FinalCTASection() {
         </div>
 
         <div className="flex flex-col items-center space-y-4 pt-2">
-          <a
-            href={checkoutUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => {
-              trackCtaClick({
-                cta_name: 'capital_checkout',
-                cta_location: 'home',
-                link_url: checkoutUrl,
-              });
-              trackEvent('click_buy_chariow', {
-                product_slug: 'le-capital-du-batisseur',
-                location: 'final_cta',
-              });
-            }}
-            className="px-10 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap"
+          <Link
+            href="/ebooks/le-capital-du-batisseur"
+            className="px-10 py-4 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap font-mono"
           >
-            PRENDRE LE PLAN
-          </a>
-
-          <p className="text-xs text-[#A5A5A0]">
-            Paiement et accès via Chariow.
-          </p>
-
-          <div className="pt-4">
-            <a
-              href="#contenu-du-livre"
-              className="text-xs font-mono text-[#F3F1EB] underline underline-offset-4 decoration-[#565A5C] hover:decoration-[#EEB149] hover:text-[#EEB149] transition-colors"
-            >
-              Voir ce que contient le livre.
-            </a>
-          </div>
+            DÉCOUVRIR LE MANUEL
+          </Link>
         </div>
       </div>
     </section>

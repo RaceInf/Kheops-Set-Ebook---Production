@@ -35,10 +35,19 @@ export function HeroSplit() {
   const rightPaneRef = useRef<HTMLDivElement>(null);
   const dividerRef = useRef<HTMLDivElement>(null);
 
-  // Percentage allocated to Right (Plan B) on desktop: starts at 48%, expands to 74% on scroll
   const [rightShare, setRightShare] = useState<number>(48);
+  const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const { formatPrice, currency } = useCurrency();
   const checkoutUrl = getChariowCheckoutUrl();
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -58,7 +67,9 @@ export function HeroSplit() {
         share: 74,
         ease: 'none',
         onUpdate: () => {
-          setRightShare(Math.round(stateObj.share));
+          if (window.innerWidth >= 1024) {
+            setRightShare(Math.round(stateObj.share));
+          }
         },
         scrollTrigger: {
           trigger: section,
@@ -87,8 +98,6 @@ export function HeroSplit() {
           <div className="lg:col-span-8 space-y-5">
             <div className="flex items-center gap-2 text-xs font-mono text-[#A5A5A0]">
               <span>01 · COMPARAISON DE TRAJECTOIRE</span>
-              <span aria-hidden="true">·</span>
-              <span className="text-[#EEB149]">UNE VIE EST UN CHANTIER</span>
             </div>
 
             <h2
@@ -114,16 +123,21 @@ export function HeroSplit() {
         <div className="space-y-3">
           {/* Interactive Calibration Bar for Manual or Scroll Inspection */}
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#A5A5A0] pb-1">
-            <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3">
               <span>PLATEAU A : {leftShare}%</span>
               <span aria-hidden="true">·</span>
               <span className="text-[#EEB149]">PLATEAU B (STRUCTURE) : {rightShare}%</span>
             </div>
 
+            <div className="lg:hidden flex items-center gap-2 text-[#EEB149]">
+              <span className="w-1.5 h-1.5 bg-[#EEB149]" />
+              <span>ANALYSE COMPARATIVE · DEUX TRAJECTOIRES</span>
+            </div>
+
             <div
               role="group"
               aria-label="Comparer les deux réalités"
-              className="inline-flex items-center border border-[#565A5C]/40 bg-[#151515] p-0.5"
+              className="hidden lg:inline-flex items-center border border-[#565A5C]/40 bg-[#151515] p-0.5"
             >
               <button
                 type="button"
@@ -169,7 +183,7 @@ export function HeroSplit() {
             {/* LEFT PANE: CE QUI CONSOMME (A) */}
             <div
               ref={leftPaneRef}
-              style={{ flexBasis: `${leftShare}%` }}
+              style={{ flexBasis: isDesktop ? `${leftShare}%` : undefined }}
               className="relative p-6 sm:p-10 lg:p-12 bg-[#151515] text-[#A5A5A0] transition-[flex-basis] duration-200 ease-out flex flex-col justify-between border-b lg:border-b-0 border-[#565A5C]/30"
             >
               <div className="space-y-6">
@@ -221,7 +235,7 @@ export function HeroSplit() {
             {/* RIGHT PANE: CE QUI CONSTRUIT (B) */}
             <div
               ref={rightPaneRef}
-              style={{ flexBasis: `${rightShare}%` }}
+              style={{ flexBasis: isDesktop ? `${rightShare}%` : undefined }}
               className="relative p-6 sm:p-10 lg:p-12 bg-[#090909] bg-blueprint-grid-dark text-[#FFFFFF] transition-[flex-basis] duration-200 ease-out flex flex-col justify-between"
             >
               <div className="space-y-6">

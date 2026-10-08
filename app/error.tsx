@@ -22,7 +22,7 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#090909] text-[#FFFFFF] px-4 py-24 bg-blueprint-grid-dark">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#090909] text-[#FFFFFF] px-4 py-24">
       <div className="w-full max-w-[620px] p-8 sm:p-12 border border-[#565A5C]/40 bg-[#151515] space-y-6">
         <p className="font-mono text-xs text-[#EEB149] tracking-wider">
           INCIDENT TECHNIQUE · INTERVENTION

@@ -62,7 +62,7 @@ export default function HomePage() {
       {/* Navigation flottante premium avec Convertisseur de devise */}
       <Navbar />
 
-      <main id="contenu-principal" className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* A. Écran d’ouverture */}
         <OpeningScreen />
 

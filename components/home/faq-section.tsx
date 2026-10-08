@@ -5,7 +5,7 @@ import { Plus, Minus } from 'lucide-react';
 import { HOME_FAQ_ITEMS, type EbookFAQItem } from '@/lib/ebooks-data';
 
 export function FAQSection({ items = HOME_FAQ_ITEMS }: { items?: EbookFAQItem[] }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section

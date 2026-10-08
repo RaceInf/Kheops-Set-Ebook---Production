@@ -78,6 +78,13 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   transpilePackages: ['motion'],
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.output = config.output || {};
+      config.output.chunkLoadTimeout = 300000;
+    }
+    return config;
+  },
   async redirects() {
     return [
       {
@@ -109,10 +116,6 @@ const nextConfig: NextConfig = {
       {
         key: 'Permissions-Policy',
         value: 'camera=(), microphone=(), geolocation=(), payment=()',
-      },
-      {
-        key: 'X-Frame-Options',
-        value: 'SAMEORIGIN',
       },
       {
         key: 'Cross-Origin-Opener-Policy',

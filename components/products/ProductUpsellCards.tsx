@@ -10,7 +10,7 @@ import { IconArrowUpRight, IconPdf } from '@/components/icons/kheops-icons';
 import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 export function ProductUpsellCards() {
-  const { formatPrice, currency, formatBaseXAF } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
 
   return (
     <section
@@ -47,7 +47,7 @@ export function ProductUpsellCards() {
               {/* Visual Cover Photo Banner + 3D Book Cover */}
               <Link
                 href={`/ebooks/${product.slug}`}
-                className="group relative w-full bg-[#090909] bg-blueprint-grid-dark border-b border-[#565A5C]/40 p-6 sm:p-8 flex items-center justify-center overflow-hidden"
+                className="group relative w-full bg-[#090909] border-b border-[#565A5C]/40 p-6 sm:p-8 flex items-center justify-center overflow-hidden"
               >
                 {/* Ambient background photo preview */}
                 <Image
@@ -140,11 +140,6 @@ export function ProductUpsellCards() {
                       {priceInfo.isOnSale && originalFormatted && (
                         <span className="text-xs sm:text-sm text-[#A5A5A0] line-through">
                           {originalFormatted}
-                        </span>
-                      )}
-                      {currency !== 'XAF' && (
-                        <span className="text-xs text-[#A5A5A0]">
-                          ({formatBaseXAF(priceInfo.activePriceXaf)})
                         </span>
                       )}
                     </div>

@@ -20,8 +20,8 @@ interface LeadCaptureFormProps {
 const SIMPLE_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LeadCaptureForm({
-  submitLabel = 'RECEVOIR LE PROTOCOLE',
-  consentText = 'J’accepte de recevoir le guide et les prochains outils de Kheops Set par email. Je peux me désinscrire à tout moment.',
+  submitLabel = "C'EST GRATUIT !",
+  consentText = 'J’accepte de recevoir le guide et les prochains outils de Kheops Set par email.',
   redirectOnSuccess = true,
   compact = false,
 }: LeadCaptureFormProps) {
@@ -212,7 +212,7 @@ export function LeadCaptureForm({
           onFocus={handleInteractionStart}
           onChange={(e) => setFirstName(e.target.value)}
           placeholder="Ex : Koffi"
-          className="w-full bg-[#090909] border border-[#565A5C]/60 focus:border-[#EEB149] text-[#FFFFFF] px-4 py-3 text-sm font-sans outline-none transition-colors"
+          className="w-full min-h-[44px] bg-[#090909] border border-[#565A5C]/60 focus:border-[#EEB149] focus-visible:ring-1 focus-visible:ring-[#EEB149] text-[#FFFFFF] px-4 py-3 text-sm font-sans outline-none transition-colors"
         />
       </div>
 
@@ -232,7 +232,7 @@ export function LeadCaptureForm({
           onFocus={handleInteractionStart}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Ex : koffi@exemple.com"
-          className="w-full bg-[#090909] border border-[#565A5C]/60 focus:border-[#EEB149] text-[#FFFFFF] px-4 py-3 text-sm font-sans outline-none transition-colors"
+          className="w-full min-h-[44px] bg-[#090909] border border-[#565A5C]/60 focus:border-[#EEB149] focus-visible:ring-1 focus-visible:ring-[#EEB149] text-[#FFFFFF] px-4 py-3 text-sm font-sans outline-none transition-colors"
         />
       </div>
 
@@ -244,7 +244,7 @@ export function LeadCaptureForm({
           required
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-1 w-4 h-4 bg-[#090909] border-[#565A5C] text-[#EEB149] focus:ring-0 cursor-pointer accent-[#EEB149]"
+          className="mt-1 w-4 h-4 min-w-[16px] min-h-[16px] bg-[#090909] border-[#565A5C] text-[#EEB149] focus:ring-1 focus:ring-[#EEB149] cursor-pointer accent-[#EEB149]"
         />
         <label
           htmlFor="form-consent-newsletter"
@@ -264,7 +264,10 @@ export function LeadCaptureForm({
       {/* Message d'erreur accessible avec aria-live */}
       <div aria-live="polite">
         {errorMessage && (
-          <p className="text-xs font-mono text-red-400 bg-red-950/40 border border-red-800/50 p-2.5">
+          <p
+            role="alert"
+            className="text-xs font-mono text-red-400 bg-red-950/40 border border-red-800/50 p-3"
+          >
             {errorMessage}
           </p>
         )}
@@ -273,7 +276,7 @@ export function LeadCaptureForm({
       <button
         type="submit"
         disabled={isSubmitDisabled}
-        className={`w-full py-4 px-6 font-mono text-xs sm:text-sm font-bold tracking-wider transition-all duration-200 ${
+        className={`w-full min-h-[48px] py-4 px-6 font-mono text-xs sm:text-sm font-bold tracking-wider transition-all duration-200 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EEB149] ${
           isSubmitDisabled
             ? 'bg-[#151515] border border-[#565A5C]/40 text-[#A5A5A0]/60 cursor-not-allowed'
             : 'bg-[#EEB149] hover:bg-[#EEB149]/90 text-[#090909] cursor-pointer shadow-lg hover:shadow-[#EEB149]/20'
@@ -289,8 +292,12 @@ export function LeadCaptureForm({
         )}
       </button>
 
-      <p className="text-[11px] text-[#A5A5A0]/80 text-center font-mono pt-1">
-        🔒 Tes informations restent confidentielles. Aucun spam.
+      <p className="text-[11px] text-[#A5A5A0]/80 text-center font-mono pt-1 flex items-center justify-center gap-1.5">
+        <svg className="w-3.5 h-3.5 text-[#EEB149] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <rect x="5" y="11" width="14" height="10" />
+          <path d="M8 11V7C8 4.79086 9.79086 3 12 3V3C14.2091 3 16 4.79086 16 7V11" />
+        </svg>
+        <span>Tes informations restent confidentielles.</span>
       </p>
     </form>
   );
