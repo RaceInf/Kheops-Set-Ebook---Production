@@ -128,21 +128,22 @@ const COMPARATIVE_AXES = [
 export function AboutManifestoExperience() {
   const [activeLawIndex, setActiveLawIndex] = useState(0);
 
-  // Interactive Diagnostic Simulator State
-  const [monthlyIncome, setMonthlyIncome] = useState(150000); // En FCFA (ajustable par l'utilisateur)
+  // Interactive Diagnostic Simulator State (100% mesurable et non spéculatif)
   const [statusSpendPct, setStatusSpendPct] = useState(25);
   const [unprotectedHours, setUnprotectedHours] = useState(10);
   const [executionDiscipline, setExecutionDiscipline] = useState(40);
 
-  // Derived metrics for the interactive simulator (100% mathematically verifiable & non-speculative)
-  const annualIncome = monthlyIncome * 12;
-  const estimatedAnnualWaste = Math.round((statusSpendPct / 100) * annualIncome);
+  // Derived metrics (100% vérifiables mathématiquement, sans spéculation de salaire ou de taux horaire)
+  // 1. Mois de travail par an absorbés par le paraître : (X% * 12 mois)
+  const monthsWorkedForAppearance = Math.round(((statusSpendPct / 100) * 12) * 10) / 10;
+  // 2. Volume de temps réel perdu : heures/semaine * 52 semaines
   const annualHoursLost = unprotectedHours * 52;
+  // 3. Équivalent en journées de travail de 8h pleines :
   const annualDaysLost = Math.round((annualHoursLost / 8) * 10) / 10;
 
   const structuralScore = Math.max(
     5,
-    Math.min(98, Math.round(executionDiscipline * 0.7 - statusSpendPct * 0.4 - unprotectedHours * 1.2 + 50))
+    Math.min(98, Math.round(executionDiscipline * 0.6 - statusSpendPct * 0.5 - unprotectedHours * 1.0 + 55))
   );
 
   const activeLaw = LAWS_OF_STEEL[activeLawIndex];
@@ -463,32 +464,11 @@ export function AboutManifestoExperience() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-stretch">
           {/* Sliders Area */}
           <div className="lg:col-span-7 space-y-4 sm:space-y-6 font-mono text-xs">
-            {/* Slider 0: Monthly Income Baseline */}
-            <div className="p-3.5 sm:p-4 bg-[#090909]/60 border border-[#EEB149]/35 space-y-2.5">
-              <div className="flex items-center justify-between text-xs sm:text-sm">
-                <span className="text-[#F3F1EB] font-semibold">0. Revenu mensuel de référence</span>
-                <span className="text-[#EEB149] font-bold">{monthlyIncome.toLocaleString('fr-FR')} FCFA</span>
-              </div>
-              <input
-                type="range"
-                min="32000"
-                max="1000000"
-                step="10000"
-                value={monthlyIncome}
-                onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-                aria-label="Revenu mensuel de référence en FCFA"
-                className="w-full accent-[#EEB149] bg-[#090909] cursor-pointer h-2"
-              />
-              <p className="text-[11px] text-[#A5A5A0] leading-snug">
-                Base de calcul de tes flux (ajustable selon ton salaire ou tes revenus réels).
-              </p>
-            </div>
-
             {/* Slider 1 */}
             <div className="p-3.5 sm:p-4 bg-[#090909]/60 border border-[#565A5C]/25 space-y-2.5">
               <div className="flex items-center justify-between text-xs sm:text-sm">
                 <span className="text-[#F3F1EB] font-semibold">1. Dépenses d’apparence</span>
-                <span className="text-[#EEB149] font-bold">{statusSpendPct}%</span>
+                <span className="text-[#EEB149] font-bold">{statusSpendPct}% de tes revenus</span>
               </div>
               <input
                 type="range"
@@ -497,19 +477,19 @@ export function AboutManifestoExperience() {
                 step="5"
                 value={statusSpendPct}
                 onChange={(e) => setStatusSpendPct(Number(e.target.value))}
-                aria-label="Dépenses d'apparence"
+                aria-label="Part des revenus dédiée au paraître"
                 className="w-full accent-[#EEB149] bg-[#090909] cursor-pointer h-2"
               />
               <p className="text-[11px] text-[#A5A5A0] leading-snug">
-                Achats pour valider un statut, sorties pour paraître, crédits de complaisance.
+                Achats pour valider un statut, sorties pour l'image, dépenses pour ne pas perdre la face.
               </p>
             </div>
 
             {/* Slider 2 */}
             <div className="p-3.5 sm:p-4 bg-[#090909]/60 border border-[#565A5C]/25 space-y-2.5">
               <div className="flex items-center justify-between text-xs sm:text-sm">
-                <span className="text-[#F3F1EB] font-semibold">2. Fuites de temps hebdo</span>
-                <span className="text-[#EEB149] font-bold">{unprotectedHours} h / sem.</span>
+                <span className="text-[#F3F1EB] font-semibold">2. Fuites de temps hebdomadaires</span>
+                <span className="text-[#EEB149] font-bold">{unprotectedHours} h / semaine</span>
               </div>
               <input
                 type="range"
@@ -518,11 +498,11 @@ export function AboutManifestoExperience() {
                 step="2"
                 value={unprotectedHours}
                 onChange={(e) => setUnprotectedHours(Number(e.target.value))}
-                aria-label="Fuites de temps hebdomadaires"
+                aria-label="Fuites de temps hebdomadaires en heures"
                 className="w-full accent-[#EEB149] bg-[#090909] cursor-pointer h-2"
               />
               <p className="text-[11px] text-[#A5A5A0] leading-snug">
-                Sollicitations acceptées par gêne, défilement passif, urgences des autres.
+                Sollicitations acceptées par incapacité de dire non, défilement passif, urgences des autres.
               </p>
             </div>
 
@@ -530,7 +510,7 @@ export function AboutManifestoExperience() {
             <div className="p-3.5 sm:p-4 bg-[#090909]/60 border border-[#565A5C]/25 space-y-2.5">
               <div className="flex items-center justify-between text-xs sm:text-sm">
                 <span className="text-[#F3F1EB] font-semibold">3. Discipline d’exécution</span>
-                <span className="text-[#EEB149] font-bold">{executionDiscipline}%</span>
+                <span className="text-[#EEB149] font-bold">{executionDiscipline}% de tenue</span>
               </div>
               <input
                 type="range"
@@ -539,7 +519,7 @@ export function AboutManifestoExperience() {
                 step="10"
                 value={executionDiscipline}
                 onChange={(e) => setExecutionDiscipline(Number(e.target.value))}
-                aria-label="Discipline d'exécution"
+                aria-label="Taux de discipline d'exécution"
                 className="w-full accent-[#EEB149] bg-[#090909] cursor-pointer h-2"
               />
               <p className="text-[11px] text-[#A5A5A0] leading-snug">
@@ -582,17 +562,23 @@ export function AboutManifestoExperience() {
                 </div>
               </div>
 
-              <div className="p-3 bg-[#151515] border border-[#565A5C]/30 space-y-2 font-mono">
+              <div className="p-3 bg-[#151515] border border-[#565A5C]/30 space-y-3 font-mono">
                 <div>
-                  <span className="text-[10px] text-[#A5A5A0] uppercase block">Fuite financière annuelle</span>
+                  <span className="text-[10px] text-[#A5A5A0] uppercase block">Labeur annuel offert au paraître</span>
                   <p className="text-base sm:text-lg font-bold text-[#EEB149] tabular-nums">
-                    ≈ {estimatedAnnualWaste.toLocaleString('fr-FR')} FCFA / an
+                    {monthsWorkedForAppearance} mois de travail / an
+                  </p>
+                  <p className="text-[10px] text-[#A5A5A0] mt-0.5">
+                    Soit {statusSpendPct}% de tes efforts annuels absorbés sans bâtir ton autonomie.
                   </p>
                 </div>
                 <div className="pt-2 border-t border-[#565A5C]/25">
-                  <span className="text-[10px] text-[#A5A5A0] uppercase block">Temps de vie évaporé</span>
+                  <span className="text-[10px] text-[#A5A5A0] uppercase block">Temps personnel évaporé</span>
                   <p className="text-xs sm:text-sm font-semibold text-[#FFFFFF] tabular-nums">
-                    {annualHoursLost} h / an <span className="text-[#A5A5A0] font-normal">(soit ≈ {annualDaysLost} jours ouvrés)</span>
+                    {annualHoursLost} h / an <span className="text-[#A5A5A0] font-normal">(soit ≈ {annualDaysLost} journées de 8h)</span>
+                  </p>
+                  <p className="text-[10px] text-[#A5A5A0] mt-0.5">
+                    52 semaines × {unprotectedHours} h/semaine non protégées.
                   </p>
                 </div>
               </div>

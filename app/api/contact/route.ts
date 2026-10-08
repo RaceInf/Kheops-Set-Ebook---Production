@@ -10,6 +10,11 @@ import { checkServerRateLimit } from '@/lib/rateLimit';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 import { requireContactConfig } from '@/lib/env/server';
 import { logger } from '@/lib/logger';
+import {
+  syncContactFormMessage,
+  sendContactNotificationEmail,
+  sendContactAcknowledgmentEmail,
+} from '@/lib/brevo';
 
 const SAFE_TEXT_REGEX = /^[^\u0000-\u001F\u007F<>]+$/;
 
@@ -159,6 +164,52 @@ export async function POST(req: NextRequest) {
     subject: sanitizedPayload.subject,
     email: logger.maskEmail(sanitizedPayload.email),
   });
+
+  // 12. Synchronisation Brevo & Notification Email (Asynchrone et résilient)
+  try {
+    // Étape A : Synchronisation du contact dans Brevo
+    const syncResult = await syncContactFormMessage(sanitizedPayload);
+    if (!syncResult.ok) {
+      logger.warn({
+        event: 'contact_brevo_sync_unsuccessful',
+        meta: {
+          email: logger.maskEmail(sanitizedPayload.email),
+          error: syncResult.error,
+        },
+      });
+    }
+
+    // Étape B : Envoi de l'email de notification Blueprint à l'administrateur
+    const notifResult = await sendContactNotificationEmail(sanitizedPayload);
+    if (!notifResult.ok) {
+      logger.warn({
+        event: 'contact_notification_email_unsuccessful',
+        meta: {
+          email: logger.maskEmail(sanitizedPayload.email),
+          error: notifResult.error,
+        },
+      });
+    }
+
+    // Étape C : Envoi de l'accusé de réception automatique au visiteur (gracieux)
+    sendContactAcknowledgmentEmail(sanitizedPayload).catch((ackErr) => {
+      logger.warn({
+        event: 'contact_acknowledgment_email_error',
+        message: ackErr instanceof Error ? ackErr.message : 'Erreur accusé',
+        meta: {
+          email: logger.maskEmail(sanitizedPayload.email),
+        },
+      });
+    });
+  } catch (brevoErr) {
+    logger.error({
+      event: 'contact_processing_background_error',
+      message: brevoErr instanceof Error ? brevoErr.message : 'Erreur inattendue Brevo',
+      meta: {
+        email: logger.maskEmail(sanitizedPayload.email),
+      },
+    });
+  }
 
   return NextResponse.json({
     ok: true,

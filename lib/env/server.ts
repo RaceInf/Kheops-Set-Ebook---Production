@@ -24,6 +24,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 const serverEnvRawSchema = z.object({
   BREVO_API_KEY: z.string().min(1).optional(),
   BREVO_PROTOCOL_LIST_ID: z.string().min(1).optional(),
+  BREVO_CONTACTS_LIST_ID: z.string().min(1).optional(),
+  BREVO_NOTIFICATION_EMAIL: z.string().min(1).optional(),
+  BREVO_SENDER_EMAIL: z.string().min(1).optional(),
   BREVO_CAPITAL_CUSTOMERS_LIST_ID: z.string().min(1).optional(),
   BREVO_CODE_CUSTOMERS_LIST_ID: z.string().min(1).optional(),
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
@@ -39,6 +42,9 @@ function getRawServerEnv() {
   return serverEnvRawSchema.parse({
     BREVO_API_KEY: process.env.BREVO_API_KEY,
     BREVO_PROTOCOL_LIST_ID: process.env.BREVO_PROTOCOL_LIST_ID,
+    BREVO_CONTACTS_LIST_ID: process.env.BREVO_CONTACTS_LIST_ID,
+    BREVO_NOTIFICATION_EMAIL: process.env.BREVO_NOTIFICATION_EMAIL,
+    BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,
     BREVO_CAPITAL_CUSTOMERS_LIST_ID: process.env.BREVO_CAPITAL_CUSTOMERS_LIST_ID,
     BREVO_CODE_CUSTOMERS_LIST_ID: process.env.BREVO_CODE_CUSTOMERS_LIST_ID,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
