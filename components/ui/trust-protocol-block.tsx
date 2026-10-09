@@ -50,7 +50,7 @@ const TRUST_POINTS = [
 export function TrustProtocolBlock({
   className = '',
   variant = 'full',
-  title = 'PROTOCOLE DE SÉCURITÉ & RÉASSURANCE TECHNIQUE',
+  title = 'SÉCURITÉ & RÉASSURANCE TECHNIQUE',
 }: TrustProtocolBlockProps) {
   return (
     <div

@@ -65,20 +65,10 @@ const BOOK_DRAWERS: ContentDrawerItem[] = [
 ];
 
 export function BookContentsDrawer() {
-  const [openIds, setOpenIds] = useState<string[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const toggleDrawer = (id: string) => {
-    setOpenIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const expandAll = () => {
-    if (openIds.length === BOOK_DRAWERS.length) {
-      setOpenIds([]);
-    } else {
-      setOpenIds(BOOK_DRAWERS.map((d) => d.id));
-    }
+    setOpenId((prev) => (prev === id ? null : id));
   };
 
   return (
@@ -105,16 +95,16 @@ export function BookContentsDrawer() {
             </h2>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={expandAll}
-              className="px-4 py-2 text-xs font-mono font-semibold border border-[#090909] text-[#090909] hover:bg-[#090909] hover:text-[#FFFFFF] transition-colors whitespace-nowrap"
-            >
-              {openIds.length === BOOK_DRAWERS.length
-                ? 'FERMER LES DOSSIERS'
-                : 'OUVRIR TOUS LES DOSSIERS'}
-            </button>
+          <div className="flex items-center gap-3">
+            {openId !== null && (
+              <button
+                type="button"
+                onClick={() => setOpenId(null)}
+                className="px-4 py-2 text-xs font-mono font-semibold border border-[#090909] text-[#090909] hover:bg-[#090909] hover:text-[#FFFFFF] transition-colors whitespace-nowrap"
+              >
+                FERMER LE DOSSIER
+              </button>
+            )}
 
             <Link
               href="/ebooks/le-capital-du-batisseur"
@@ -129,7 +119,7 @@ export function BookContentsDrawer() {
         {/* Interactive Technical Drawers */}
         <div className="divide-y divide-[#565A5C]/35 border-y border-[#090909]">
           {BOOK_DRAWERS.map((drawer) => {
-            const isOpen = openIds.includes(drawer.id);
+            const isOpen = openId === drawer.id;
             const panelId = `drawer-panel-${drawer.id}`;
             const buttonId = `drawer-button-${drawer.id}`;
 

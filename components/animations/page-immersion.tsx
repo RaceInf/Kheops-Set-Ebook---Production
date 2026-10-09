@@ -37,17 +37,16 @@ export function PageImmersion({
         if (idx === 0) return; // Laisse le premier bloc au-dessus de la ligne de flottaison immédiatement visible (LCP)
         gsap.fromTo(
           sec,
-          { y: 24, opacity: 0.15 },
+          { y: 20, opacity: 0.2 },
           {
             y: 0,
             opacity: 1,
-            duration: 0.55,
+            duration: 0.5,
             ease: 'power2.out',
             scrollTrigger: {
               trigger: sec,
-              start: 'top 90%',
-              end: 'top 60%',
-              toggleActions: 'play none none reverse',
+              start: 'top 92%',
+              once: true,
             },
           }
         );

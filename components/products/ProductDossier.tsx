@@ -31,7 +31,7 @@ export function ProductDossier({ product }: ProductDossierProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#565A5C]/30 pb-6">
         <div>
           <p className="font-mono text-xs text-[#EEB149] tracking-wider">
-            DOSSIER TECHNIQUE // {product.tag}
+            DOSSIER TECHNIQUE
           </p>
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#FFFFFF] mt-1">
             Structure & Spécifications du Plan
@@ -81,7 +81,7 @@ export function ProductDossier({ product }: ProductDossierProps) {
             className="space-y-4"
           >
             <p className="text-xs font-mono text-[#A5A5A0]">
-              PLAN TECHNIQUE · DÉCOUPAGE CHAPITRE PAR CHAPITRE
+              DÉCOUPAGE CHAPITRE PAR CHAPITRE
             </p>
             <div className="divide-y divide-[#565A5C]/20 border border-[#565A5C]/30 bg-[#090909]">
               {product.tableOfContents && product.tableOfContents.length > 0 ? (
@@ -150,7 +150,7 @@ export function ProductDossier({ product }: ProductDossierProps) {
             <div className="p-6 bg-[#090909] border border-[#565A5C]/35 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-[#EEB149]">
                 <IconCheck className="w-4 h-4" />
-                <span>CE GUIDE EST FAIT POUR TOI SI :</span>
+                <span>IL EST FAIT POUR TOI SI :</span>
               </div>
               <ul className="space-y-3">
                 {product.whoIsItFor && product.whoIsItFor.map((item, idx) => (
@@ -166,7 +166,7 @@ export function ProductDossier({ product }: ProductDossierProps) {
             <div className="p-6 bg-[#090909] border border-[#565A5C]/35 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-[#A5A5A0]">
                 <IconProtect className="w-4 h-4" />
-                <span>CE GUIDE N’EST PAS FAIT POUR TOI SI :</span>
+                <span>IL N’EST PAS FAIT POUR TOI SI :</span>
               </div>
               <ul className="space-y-3">
                 {product.whoIsItNotFor && product.whoIsItNotFor.map((item, idx) => (

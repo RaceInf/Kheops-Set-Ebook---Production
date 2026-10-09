@@ -234,7 +234,7 @@ export function StickyPlanScene() {
                   <div className="space-y-3.5">
                     <div className="flex items-center gap-2 font-mono text-xs text-[#565A5C]">
                       <span className="text-[#EEB149] font-bold bg-[#090909] px-2 py-0.5">ÉTAPE {step.number}</span>
-                      <span>//</span>
+                      <span>{'//'}</span>
                       <span className="uppercase tracking-wider font-semibold text-[#090909]">{step.metric}</span>
                     </div>
 

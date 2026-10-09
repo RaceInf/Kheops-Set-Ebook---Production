@@ -76,7 +76,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'standalone',
   transpilePackages: ['motion'],
   webpack: (config, { isServer }) => {
     if (!isServer) {

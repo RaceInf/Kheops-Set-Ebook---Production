@@ -133,3 +133,12 @@
     transform: none !important;
   }
 }
+
+/* Chariow Snap Widget Custom Branding (Noir Charbon #090909 & Or #EEB149) */
+#chariow-widget {
+  --chariow-primary: #EEB149;
+  --chariow-background: #090909;
+  --chariow-text: #FFFFFF;
+}
+
+

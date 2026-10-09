@@ -481,7 +481,7 @@ export function AboutManifestoExperience() {
                 className="w-full accent-[#EEB149] bg-[#090909] cursor-pointer h-2"
               />
               <p className="text-[11px] text-[#A5A5A0] leading-snug">
-                Achats pour valider un statut, sorties pour l'image, dépenses pour ne pas perdre la face.
+                Achats pour valider un statut, sorties pour l&apos;image, dépenses pour ne pas perdre la face.
               </p>
             </div>
 
