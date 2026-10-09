@@ -7,10 +7,11 @@ import { AVAILABLE_PRODUCTS, calculatePriceInfo, getChariowCheckoutUrl } from '@
 import { useCurrency } from '@/context/currency-context';
 import { SaleBadge } from '@/components/ui/SaleBadge';
 import { IconArrowUpRight, IconPdf } from '@/components/icons/kheops-icons';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 export function ProductUpsellCards() {
   const { formatPrice, currency } = useCurrency();
+  const { openCheckout } = useCheckoutModal();
 
   return (
     <section
@@ -157,22 +158,15 @@ export function ProductUpsellCards() {
                       href={checkoutUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() => {
-                        const ctaName =
-                          product.slug === 'le-code-du-batisseur'
-                            ? 'code_checkout'
-                            : 'capital_checkout';
-                        trackCtaClick({
-                          cta_name: ctaName,
-                          cta_location: 'product_page',
-                          link_url: checkoutUrl,
-                        });
-                        trackEvent('click_buy_chariow', {
-                          product_slug: product.slug,
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openCheckout({
+                          slug: product.slug,
                           location: 'upsell_card',
+                          triggerElement: e.currentTarget,
                         });
                       }}
-                      className="inline-flex items-center justify-center py-3.5 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
+                      className="inline-flex items-center justify-center py-3.5 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap cursor-pointer"
                     >
                       {product.ctaLabel}
                     </a>

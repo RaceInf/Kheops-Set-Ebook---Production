@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { Product } from '@/lib/products';
 import { getChariowCheckoutUrl, AVAILABLE_PRODUCTS } from '@/lib/products';
 import { PriceDisplay } from '@/components/ui/price-display';
-import { ChariowSnapWidget } from '@/components/ui/chariow-snap-widget';
+import { ChariowBuyButton } from '@/components/ui/chariow-buy-button';
 import { ProductDossier } from '@/components/products/ProductDossier';
 import { BookPreviewReader } from '@/components/products/BookPreviewReader';
 import { TrustProtocolBlock } from '@/components/ui/trust-protocol-block';
@@ -36,11 +36,6 @@ export function ProductDetailPageExperience({
       };
     }
   }, [isPreviewOpen]);
-
-  const snapProductId =
-    product.slug === 'le-capital-du-batisseur'
-      ? (process.env.NEXT_PUBLIC_CHARIOW_CAPITAL_SNAP_ID || 'prd_09id6x')
-      : (process.env.NEXT_PUBLIC_CHARIOW_CODE_SNAP_ID || 'codedubatisseur');
 
   const checkoutUrl = getChariowCheckoutUrl(product.chariowUrl, product.slug);
   const ctaName =
@@ -225,17 +220,21 @@ export function ProductDetailPageExperience({
                 showSelector={true}
               />
 
-              {/* Primary Call to Action via Chariow Snap Widget */}
+              {/* Primary Call to Action */}
               <div className="space-y-3 pt-2">
-                <ChariowSnapWidget
-                  productId={snapProductId}
-                  storeDomain="fovqbyzx.mychariow.shop"
-                  productName={product.title}
-                  className="w-full"
-                />
+                <ChariowBuyButton
+                  href={checkoutUrl}
+                  ctaName={ctaName}
+                  ctaLocation="product_hero"
+                  productSlug={product.slug}
+                  className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-[#EEB149] text-[#090909] font-mono text-sm sm:text-base font-bold tracking-wider hover:bg-[#FFFFFF] transition-colors text-center cursor-pointer"
+                >
+                  <span>{product.ctaLabel}</span>
+                  <IconArrowUpRight className="w-5 h-5 shrink-0" />
+                </ChariowBuyButton>
 
                 <p className="text-center font-mono text-xs text-[#A5A5A0]">
-                  Paiement sécurisé et accès instantané sans quitter le site.
+                  {product.ctaSubtext}
                 </p>
               </div>
 
@@ -360,12 +359,16 @@ export function ProductDetailPageExperience({
         </div>
 
         <div className="pt-4 max-w-md mx-auto space-y-3">
-          <ChariowSnapWidget
-            productId={snapProductId}
-            storeDomain="fovqbyzx.mychariow.shop"
-            productName={product.title}
-            className="w-full"
-          />
+          <ChariowBuyButton
+            href={checkoutUrl}
+            ctaName={ctaName}
+            ctaLocation="product_footer"
+            productSlug={product.slug}
+            className="w-full flex items-center justify-center gap-2 py-4 px-8 bg-[#EEB149] text-[#090909] font-mono text-sm sm:text-base font-bold tracking-wider hover:bg-[#FFFFFF] transition-colors cursor-pointer"
+          >
+            <span>{product.ctaLabel}</span>
+            <IconArrowUpRight className="w-5 h-5 shrink-0" />
+          </ChariowBuyButton>
 
           <p className="text-center font-mono text-xs text-[#A5A5A0]">
             Paiement et accès immédiat via Chariow.

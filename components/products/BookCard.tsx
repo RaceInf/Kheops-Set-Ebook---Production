@@ -13,30 +13,22 @@ import {
   IconCheck,
   IconArrowUpRight,
 } from '@/components/icons/kheops-icons';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 interface BookCardProps {
   product: Product;
 }
 
 export function BookCard({ product }: BookCardProps) {
+  const { openCheckout } = useCheckoutModal();
   const checkoutUrl = getChariowCheckoutUrl(product.chariowUrl, product.slug);
 
-  const handleBuyClick = () => {
-    const ctaName =
-      product.slug === 'le-code-du-batisseur'
-        ? 'code_checkout'
-        : 'capital_checkout';
-
-    trackCtaClick({
-      cta_name: ctaName,
-      cta_location: 'catalogue',
-      link_url: checkoutUrl,
-    });
-
-    trackEvent('click_buy_chariow', {
-      product_slug: product.slug,
-      location: 'book_card',
+  const handleBuyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    openCheckout({
+      slug: product.slug,
+      location: 'catalogue',
+      triggerElement: e.currentTarget,
     });
   };
 

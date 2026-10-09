@@ -2,8 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
 
 export function FinalCTASection() {
   return (

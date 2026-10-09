@@ -435,7 +435,8 @@ export function EbooksCatalogExperience() {
                           href={checkoutUrl}
                           ctaName={ctaName}
                           ctaLocation="catalogue"
-                          className="w-full sm:flex-1 py-4 px-6 text-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap font-mono"
+                          productSlug={product.slug}
+                          className="w-full sm:flex-1 py-4 px-6 text-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap font-mono cursor-pointer"
                         >
                           {product.ctaLabel}
                         </ChariowBuyButton>

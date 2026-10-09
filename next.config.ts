@@ -50,7 +50,7 @@ const cspDirectives = [
   "img-src 'self' data: blob: https://picsum.photos https://drive.google.com https://*.googleusercontent.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://www.clarity.ms",
-  "frame-src 'self' https://challenges.cloudflare.com",
+  "frame-src 'self' https://challenges.cloudflare.com https://fovqbyzx.mychariow.shop",
   "frame-ancestors 'self' https://*.run.app https://*.google.com https://aistudio.google.com",
   "form-action 'self'",
   "base-uri 'self'",

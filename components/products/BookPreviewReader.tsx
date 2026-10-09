@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ChevronLeft, ChevronRight, X, ArrowUpRight } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import { getChariowCheckoutUrl } from '@/lib/products';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 interface BookPreviewReaderProps {
   product: Product;
@@ -24,6 +24,7 @@ export function BookPreviewReader({
   const totalPreviewPages = pages.length;
   const currentPage = pages[currentIndex];
   const pathname = usePathname();
+  const { openCheckout } = useCheckoutModal();
   const ctaLocation = pathname === '/' ? 'home' : 'product_page';
   const ctaName =
     product.slug === 'le-code-du-batisseur'
@@ -139,18 +140,18 @@ export function BookPreviewReader({
               <div className="pt-2">
                 <a
                   href={checkoutUrl}
-                  onClick={() => {
-                    trackCtaClick({
-                      cta_name: ctaName,
-                      cta_location: ctaLocation,
-                      link_url: checkoutUrl,
-                    });
-                    trackEvent('click_buy_chariow', {
-                      product_slug: product.slug,
-                      location: 'preview_reader_unlock',
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (onClose) onClose();
+                    openCheckout({
+                      slug: product.slug,
+                      location: `${ctaLocation}_preview_reader_unlock`,
+                      triggerElement: e.currentTarget,
                     });
                   }}
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-[#EEB149] text-[#090909] font-mono text-xs font-bold hover:bg-[#FFFFFF] transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-3 bg-[#EEB149] text-[#090909] font-mono text-xs font-bold hover:bg-[#FFFFFF] transition-colors cursor-pointer"
                 >
                   <span>{product.ctaLabel}</span>
                   <ArrowUpRight className="w-4 h-4" />

@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getChariowCheckoutUrl, CAPITAL_PRODUCT } from '@/lib/ebooks-data';
 import { useCurrency } from '@/context/currency-context';
 import { IconCheck, IconCrosshair } from '@/components/icons/kheops-icons';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 const LEFT_REALITY_ITEMS = [
   'Le bruit.',
@@ -38,6 +38,7 @@ export function HeroSplit() {
   const [rightShare, setRightShare] = useState<number>(48);
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const { formatPrice, currency } = useCurrency();
+  const { openCheckout } = useCheckoutModal();
   const checkoutUrl = getChariowCheckoutUrl();
 
   useEffect(() => {
@@ -279,18 +280,15 @@ export function HeroSplit() {
                 href={checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => {
-                  trackCtaClick({
-                    cta_name: 'capital_checkout',
-                    cta_location: 'home',
-                    link_url: checkoutUrl,
-                  });
-                  trackEvent('click_buy_chariow', {
-                    product_slug: CAPITAL_PRODUCT.slug,
-                    location: 'hero_split',
+                onClick={(e) => {
+                  e.preventDefault();
+                  openCheckout({
+                    slug: 'le-capital-du-batisseur',
+                    location: 'home_hero_split',
+                    triggerElement: e.currentTarget,
                   });
                 }}
-                className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap"
+                className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap cursor-pointer"
               >
                 PRENDRE LE PLAN
               </a>

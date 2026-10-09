@@ -150,7 +150,7 @@ export function ProductDossier({ product }: ProductDossierProps) {
             <div className="p-6 bg-[#090909] border border-[#565A5C]/35 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-[#EEB149]">
                 <IconCheck className="w-4 h-4" />
-                <span>IL EST FAIT POUR TOI SI :</span>
+                <span>CE GUIDE EST FAIT POUR TOI SI :</span>
               </div>
               <ul className="space-y-3">
                 {product.whoIsItFor && product.whoIsItFor.map((item, idx) => (
@@ -166,7 +166,7 @@ export function ProductDossier({ product }: ProductDossierProps) {
             <div className="p-6 bg-[#090909] border border-[#565A5C]/35 space-y-4">
               <div className="flex items-center gap-2 text-xs font-mono text-[#A5A5A0]">
                 <IconProtect className="w-4 h-4" />
-                <span>IL N’EST PAS FAIT POUR TOI SI :</span>
+                <span>CE GUIDE N’EST PAS FAIT POUR TOI SI :</span>
               </div>
               <ul className="space-y-3">
                 {product.whoIsItNotFor && product.whoIsItNotFor.map((item, idx) => (

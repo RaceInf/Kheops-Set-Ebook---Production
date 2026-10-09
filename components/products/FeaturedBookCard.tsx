@@ -7,13 +7,14 @@ import type { Product } from '@/lib/products';
 import { getChariowCheckoutUrl } from '@/lib/products';
 import { PriceDisplay } from '@/components/ui/price-display';
 import { IconArrowUpRight, IconPdf } from '@/components/icons/kheops-icons';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 interface FeaturedBookCardProps {
   product: Product;
 }
 
 export function FeaturedBookCard({ product }: FeaturedBookCardProps) {
+  const { openCheckout } = useCheckoutModal();
   const checkoutUrl = getChariowCheckoutUrl(product.chariowUrl, product.slug);
 
   return (
@@ -98,22 +99,15 @@ export function FeaturedBookCard({ product }: FeaturedBookCardProps) {
               href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => {
-                const ctaName =
-                  product.slug === 'le-code-du-batisseur'
-                    ? 'code_checkout'
-                    : 'capital_checkout';
-                trackCtaClick({
-                  cta_name: ctaName,
-                  cta_location: 'product_page',
-                  link_url: checkoutUrl,
-                });
-                trackEvent('click_buy_chariow', {
-                  product_slug: product.slug,
+              onClick={(e) => {
+                e.preventDefault();
+                openCheckout({
+                  slug: product.slug,
                   location: 'featured_card',
+                  triggerElement: e.currentTarget,
                 });
               }}
-              className="flex-1 text-center py-3.5 px-5 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
+              className="flex-1 text-center py-3.5 px-5 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               {product.ctaLabel}
             </a>

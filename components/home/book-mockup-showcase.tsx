@@ -20,7 +20,7 @@ import {
   IconCheck,
   IconArrowUpRight,
 } from '@/components/icons/kheops-icons';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 export function BookMockupShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -46,6 +46,7 @@ export function BookMockupShowcase() {
     });
   };
 
+  const { openCheckout } = useCheckoutModal();
   const checkoutUrl = getChariowCheckoutUrl(
     CAPITAL_PRODUCT.chariowUrl,
     CAPITAL_PRODUCT.slug
@@ -364,18 +365,15 @@ export function BookMockupShowcase() {
                   href={checkoutUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => {
-                    trackCtaClick({
-                      cta_name: 'capital_checkout',
-                      cta_location: 'home',
-                      link_url: checkoutUrl,
-                    });
-                    trackEvent('click_buy_chariow', {
-                      product_slug: CAPITAL_PRODUCT.slug,
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openCheckout({
+                      slug: 'le-capital-du-batisseur',
                       location: 'home_showcase',
+                      triggerElement: e.currentTarget,
                     });
                   }}
-                  className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150"
+                  className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 cursor-pointer"
                 >
                   {CAPITAL_PRODUCT.ctaLabel}
                 </a>

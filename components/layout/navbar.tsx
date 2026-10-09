@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { CurrencySelector } from '@/components/ui/currency-selector';
 import { getChariowCheckoutUrl } from '@/lib/ebooks-data';
-import { trackEvent, trackCtaClick } from '@/lib/analytics';
+import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 const NAV_ITEMS = [
   { label: 'Accueil', href: '/' },
@@ -22,6 +22,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const pathname = usePathname();
+  const { openCheckout } = useCheckoutModal();
   const checkoutUrl = getChariowCheckoutUrl();
   const ctaLocation =
     pathname === '/'
@@ -31,6 +32,10 @@ export function Navbar() {
         : pathname === '/ebooks'
           ? 'catalogue'
           : 'home';
+
+  const productSlug = pathname?.includes('le-code-du-batisseur')
+    ? 'le-code-du-batisseur'
+    : 'le-capital-du-batisseur';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -118,15 +123,12 @@ export function Navbar() {
             href={checkoutUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => {
-              trackCtaClick({
-                cta_name: 'capital_checkout',
-                cta_location: ctaLocation,
-                link_url: checkoutUrl,
-              });
-              trackEvent('click_buy_chariow', {
-                product_slug: 'le-capital-du-batisseur',
-                location: 'navbar_desktop',
+            onClick={(e) => {
+              e.preventDefault();
+              openCheckout({
+                slug: productSlug,
+                location: `${ctaLocation}_navbar_desktop`,
+                triggerElement: e.currentTarget,
               });
             }}
             className="px-3.5 sm:px-4 py-2 min-h-[38px] inline-flex items-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] active:scale-[0.98] transition-all duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EEB149]"
@@ -177,17 +179,14 @@ export function Navbar() {
                 href={checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => {
-                  trackCtaClick({
-                    cta_name: 'capital_checkout',
-                    cta_location: ctaLocation,
-                    link_url: checkoutUrl,
-                  });
-                  trackEvent('click_buy_chariow', {
-                    product_slug: 'le-capital-du-batisseur',
-                    location: 'navbar_mobile',
-                  });
+                onClick={(e) => {
+                  e.preventDefault();
                   setMobileMenuOpen(false);
+                  openCheckout({
+                    slug: productSlug,
+                    location: `${ctaLocation}_navbar_mobile`,
+                    triggerElement: e.currentTarget,
+                  });
                 }}
                 className="flex items-center justify-center w-full py-3 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
               >

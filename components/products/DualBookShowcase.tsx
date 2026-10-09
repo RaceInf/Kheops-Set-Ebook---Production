@@ -128,7 +128,8 @@ export function DualBookShowcase({
                     href={checkoutUrl}
                     ctaName={ctaName}
                     ctaLocation={ctaLocation}
-                    className="w-full sm:flex-1 py-3.5 px-4 text-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
+                    productSlug={product.slug}
+                    className="w-full sm:flex-1 py-3.5 px-4 text-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap cursor-pointer"
                   >
                     {product.ctaLabel}
                   </ChariowBuyButton>

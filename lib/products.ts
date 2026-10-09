@@ -168,6 +168,14 @@ export const OFFICIAL_CHARIOW_CAPITAL_CHECKOUT =
 export const OFFICIAL_CHARIOW_CODE_CHECKOUT =
   'https://fovqbyzx.mychariow.shop/codedubatisseur/checkout';
 
+export const CHARIOW_CAPITAL_SNAP_ID = 'prd_09id6x';
+export const CHARIOW_CODE_SNAP_ID = 'prd_9d45hw';
+
+export const CHARIOW_CAPITAL_IFRAME_URL =
+  'https://fovqbyzx.mychariow.shop/widget/prd_09id6x/checkout?primary_color=%23EEB149&background_color=%23090909&locale=fr';
+export const CHARIOW_CODE_IFRAME_URL =
+  'https://fovqbyzx.mychariow.shop/widget/prd_9d45hw/checkout?primary_color=%23EEB149&background_color=%23090909&locale=fr';
+
 const DEFAULT_CAPITAL_CHARIOW_URL =
   process.env.NEXT_PUBLIC_CHARIOW_CAPITAL_URL ||
   process.env.NEXT_PUBLIC_CHARIOW_MAIN_URL ||

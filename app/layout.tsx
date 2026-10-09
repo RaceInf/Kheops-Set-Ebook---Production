@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import { CurrencyProvider } from '@/context/currency-context';
+import { CheckoutModalProvider } from '@/context/checkout-modal-context';
+import { ChariowCheckoutModal } from '@/components/checkout/ChariowCheckoutModal';
 import { ScrollToTopButton } from '@/components/ui/scroll-to-top-button';
 import { PrivacyAnalytics } from '@/components/analytics/PrivacyAnalytics';
 import { getValidSiteUrl } from '@/lib/safe-url';
@@ -118,9 +120,12 @@ export default function RootLayout({
           Passer au contenu principal
         </a>
         <CurrencyProvider>
-          <PrivacyAnalytics />
-          {children}
-          <ScrollToTopButton />
+          <CheckoutModalProvider>
+            <PrivacyAnalytics />
+            {children}
+            <ChariowCheckoutModal />
+            <ScrollToTopButton />
+          </CheckoutModalProvider>
         </CurrencyProvider>
       </body>
     </html>
