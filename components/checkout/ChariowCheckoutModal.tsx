@@ -17,15 +17,6 @@ export function ChariowCheckoutModal() {
   const iframeLoading = activeSlug !== null && loadedSlug !== activeSlug;
   const hasLoadError = activeSlug !== null && loadErrorSlug === activeSlug;
 
-  // Debug log when active product or URL changes
-  useEffect(() => {
-    if (activeProduct) {
-      console.info(
-        `[Kheops Checkout DEBUG] Opening checkout modal for product: "${activeProduct.title}" (${activeProduct.slug}). Iframe URL: ${activeProduct.iframeUrl}`
-      );
-    }
-  }, [activeProduct]);
-
   // Gestion du scroll du body et du focus initial
   useEffect(() => {
     if (!isOpen) return;
@@ -49,30 +40,18 @@ export function ChariowCheckoutModal() {
     if (!isOpen) return;
 
     const handleMessage = (event: MessageEvent) => {
-      console.log('[Kheops Checkout DEBUG] Received window postMessage event:', {
-        origin: event.origin,
-        data: event.data,
-      });
-
-      if (!event.origin || !event.origin.includes('chariow.shop')) {
-        console.warn('[Kheops Checkout DEBUG] Ignored postMessage from untrusted origin:', event.origin);
-        return;
-      }
+      if (!event.origin || !event.origin.includes('chariow.shop')) return;
       const data = event.data;
       if (!data || typeof data !== 'object') return;
 
       if (data.type === 'chariow-checkout-redirect' && typeof data.url === 'string') {
-        console.info('[Kheops Checkout DEBUG] Intercepted chariow-checkout-redirect URL:', data.url);
         try {
           const parsed = new URL(data.url);
           if (parsed.protocol === 'https:') {
             window.location.href = data.url;
           }
-        } catch (err) {
-          console.error('[Kheops Checkout DEBUG] Error parsing redirect URL:', err);
-        }
+        } catch {}
       } else if (data.eventType === 'PAYMENT_SUCCESSFUL' && data.eventData?.return_url) {
-        console.info('[Kheops Checkout DEBUG] Payment successful event received:', data.eventData.return_url);
         try {
           const parsed = new URL(data.eventData.return_url);
           if (parsed.protocol === 'https:') {
@@ -82,7 +61,6 @@ export function ChariowCheckoutModal() {
           window.location.href = '/merci';
         }
       } else if (data.type === 'chariow-purchase-completed') {
-        console.info('[Kheops Checkout DEBUG] Purchase completed event received.');
         window.location.href = '/merci';
       }
     };
@@ -224,41 +202,23 @@ export function ChariowCheckoutModal() {
             className="w-full h-full border-0 block"
             sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-top-navigation"
             loading="eager"
-            onLoad={() => {
-              console.log(`[Kheops Checkout DEBUG] IFrame onLoad triggered successfully for ${activeProduct.slug}`);
-              setLoadedSlug(activeProduct.slug);
-            }}
-            onError={(e) => {
-              console.error(`[Kheops Checkout DEBUG] IFrame onError triggered for ${activeProduct.slug}:`, e);
-              setLoadErrorSlug(activeProduct.slug);
-            }}
+            onLoad={() => setLoadedSlug(activeProduct.slug)}
+            onError={() => setLoadErrorSlug(activeProduct.slug)}
           />
         </div>
 
         {/* Pied de dialogue avec secours et mentions légales */}
-        <div className="px-4 sm:px-6 py-3 border-t border-[#565A5C]/40 bg-[#151515] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono shrink-0">
-          <span className="text-[#A5A5A0]">Paiement sécurisé via Chariow / Orqex</span>
-          <div className="flex items-center gap-3">
-            <a
-              href={activeProduct.directCheckoutUrl}
-              onClick={(e) => {
-                e.preventDefault();
-                window.location.href = activeProduct.directCheckoutUrl;
-              }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#EEB149] text-[#090909] font-semibold hover:bg-[#FFFFFF] transition-colors cursor-pointer"
-            >
-              <span>Finaliser sur Chariow</span>
-              <ExternalLink className="w-3 h-3" aria-hidden="true" />
-            </a>
-            <a
-              href={activeProduct.directCheckoutUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#A5A5A0] hover:text-[#FFFFFF] transition-colors underline underline-offset-2"
-            >
-              Nouvel onglet
-            </a>
-          </div>
+        <div className="px-4 sm:px-6 py-2.5 border-t border-[#565A5C]/40 bg-[#151515] flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] font-mono text-[#A5A5A0] shrink-0">
+          <span>Paiement sécurisé et accès instantané via Chariow</span>
+          <a
+            href={activeProduct.directCheckoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[#EEB149] hover:text-[#FFFFFF] transition-colors underline underline-offset-2"
+          >
+            <span>Ouvrir dans un nouvel onglet</span>
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
+          </a>
         </div>
       </div>
     </div>
