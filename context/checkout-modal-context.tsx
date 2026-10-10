@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useCallback } from 'react';
 import {
   CAPITAL_PRODUCT,
   CODE_PRODUCT,
@@ -71,11 +71,7 @@ interface CheckoutModalContextType {
 const CheckoutModalContext = createContext<CheckoutModalContextType | undefined>(undefined);
 
 export function CheckoutModalProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeProduct, setActiveProduct] = useState<CheckoutProductConfig | null>(null);
-  const triggerRef = useRef<HTMLElement | null>(null);
-
-  const openCheckout = useCallback(({ slug, location, triggerElement }: OpenCheckoutOptions) => {
+  const openCheckout = useCallback(({ slug, location }: OpenCheckoutOptions) => {
     const resolvedSlug: CheckoutProductSlug =
       slug === 'le-code-du-batisseur' || slug === 'code'
         ? 'le-code-du-batisseur'
@@ -83,47 +79,34 @@ export function CheckoutModalProvider({ children }: { children: React.ReactNode 
 
     const productConfig = CHECKOUT_PRODUCTS[resolvedSlug];
 
-    // Sauvegarder l'élément déclencheur pour restituer le focus
-    triggerRef.current = triggerElement ?? (typeof document !== 'undefined' ? (document.activeElement as HTMLElement) : null);
-
-    // 1. Envoyer l'événement GA4 cta_click avant l'ouverture (avec transport beacon)
+    // 1. Envoyer l'événement GA4 cta_click (avec transport beacon)
     trackCtaClick({
       cta_name: productConfig.ctaName,
       cta_location: location,
       link_url: productConfig.directCheckoutUrl,
     });
 
-    // Maintenir également click_buy_chariow pour les rapports historiques
     trackEvent('click_buy_chariow', {
       product_slug: resolvedSlug,
       location,
     });
 
-    // 2. Ouvrir la modale avec le bon produit
-    setActiveProduct(productConfig);
-    setIsOpen(true);
+    // 2. Ouvrir le checkout Chariow dans un nouvel onglet sécurisé
+    // (Évite le blocage d'iframe par checkout.orqex.com lors du clic sur Payer maintenant)
+    if (typeof window !== 'undefined') {
+      window.open(productConfig.directCheckoutUrl, '_blank', 'noopener,noreferrer');
+    }
   }, []);
 
   const closeCheckout = useCallback(() => {
-    setIsOpen(false);
-
-    // Restituer le focus à l'élément déclencheur de façon accessible
-    if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
-      setTimeout(() => {
-        try {
-          triggerRef.current?.focus();
-        } catch {
-          // Silence focus error
-        }
-      }, 50);
-    }
+    // No-op for direct secure tab redirect
   }, []);
 
   return (
     <CheckoutModalContext.Provider
       value={{
-        isOpen,
-        activeProduct,
+        isOpen: false,
+        activeProduct: null,
         openCheckout,
         closeCheckout,
       }}
