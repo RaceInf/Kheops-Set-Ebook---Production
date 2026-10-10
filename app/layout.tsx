@@ -1,5 +1,5 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
-import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import { CurrencyProvider } from '@/context/currency-context';
 import { CheckoutModalProvider } from '@/context/checkout-modal-context';
 import { ChariowCheckoutModal } from '@/components/checkout/ChariowCheckoutModal';
@@ -7,27 +7,6 @@ import { ScrollToTopButton } from '@/components/ui/scroll-to-top-button';
 import { PrivacyAnalytics } from '@/components/analytics/PrivacyAnalytics';
 import { getValidSiteUrl } from '@/lib/safe-url';
 import './globals.css';
-
-const syne = Syne({
-  subsets: ['latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-sans',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-mono',
-  display: 'swap',
-});
 
 const siteUrl = getValidSiteUrl(
   process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL
@@ -84,11 +63,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="fr"
-      className={`${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="fr">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+          rel="stylesheet"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
