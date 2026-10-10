@@ -361,12 +361,11 @@ export function BookMockupShowcase() {
               />
 
               <div className="space-y-2.5 pt-2 border-t border-[#565A5C]/30">
-                <a
-                  href={checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     openCheckout({
                       slug: 'le-capital-du-batisseur',
                       location: 'home_showcase',
@@ -376,7 +375,7 @@ export function BookMockupShowcase() {
                   className="flex items-center justify-center w-full py-4 px-6 text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 cursor-pointer"
                 >
                   {CAPITAL_PRODUCT.ctaLabel}
-                </a>
+                </button>
 
                 <Link
                   href="/ebooks/le-capital-du-batisseur"

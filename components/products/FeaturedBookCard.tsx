@@ -95,12 +95,11 @@ export function FeaturedBookCard({ product }: FeaturedBookCardProps) {
 
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <a
-              href={checkoutUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 openCheckout({
                   slug: product.slug,
                   location: 'featured_card',
@@ -110,7 +109,7 @@ export function FeaturedBookCard({ product }: FeaturedBookCardProps) {
               className="flex-1 text-center py-3.5 px-5 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               {product.ctaLabel}
-            </a>
+            </button>
 
             <Link
               href={`/ebooks/${product.slug}`}

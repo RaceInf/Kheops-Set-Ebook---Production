@@ -4,27 +4,30 @@ import React from 'react';
 import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 interface ChariowBuyButtonProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  href: string;
-  ctaName: 'capital_checkout' | 'code_checkout';
-  ctaLocation: 'home' | 'catalogue' | 'product_page' | string;
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  href?: string;
+  ctaName?: 'capital_checkout' | 'code_checkout';
+  ctaLocation?: 'home' | 'catalogue' | 'product_page' | string;
   productSlug?: 'le-capital-du-batisseur' | 'le-code-du-batisseur' | string;
   children: React.ReactNode;
 }
 
 export function ChariowBuyButton({
   href,
-  ctaName,
-  ctaLocation,
+  ctaName = 'capital_checkout',
+  ctaLocation = 'product_page',
   productSlug,
   children,
   onClick,
+  type = 'button',
+  className = '',
   ...props
 }: ChariowBuyButtonProps) {
   const { openCheckout } = useCheckoutModal();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    e.stopPropagation();
 
     const resolvedSlug =
       productSlug ||
@@ -42,14 +45,14 @@ export function ChariowBuyButton({
   };
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      type={type}
       onClick={handleClick}
+      className={className}
+      data-fallback-url={href}
       {...props}
     >
       {children}
-    </a>
+    </button>
   );
 }

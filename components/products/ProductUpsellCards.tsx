@@ -154,12 +154,11 @@ export function ProductUpsellCards() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a
-                      href={checkoutUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         openCheckout({
                           slug: product.slug,
                           location: 'upsell_card',
@@ -169,7 +168,7 @@ export function ProductUpsellCards() {
                       className="inline-flex items-center justify-center py-3.5 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap cursor-pointer"
                     >
                       {product.ctaLabel}
-                    </a>
+                    </button>
 
                     <Link
                       href={`/ebooks/${product.slug}`}

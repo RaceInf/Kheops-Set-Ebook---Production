@@ -23,8 +23,9 @@ export function BookCard({ product }: BookCardProps) {
   const { openCheckout } = useCheckoutModal();
   const checkoutUrl = getChariowCheckoutUrl(product.chariowUrl, product.slug);
 
-  const handleBuyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleBuyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     openCheckout({
       slug: product.slug,
       location: 'catalogue',
@@ -157,15 +158,13 @@ export function BookCard({ product }: BookCardProps) {
 
           <div className="space-y-2.5">
             <div className="flex flex-wrap items-center gap-3.5">
-              <a
-                href={checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 onClick={handleBuyClick}
-                className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap"
+                className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors whitespace-nowrap cursor-pointer"
               >
                 {product.ctaLabel}
-              </a>
+              </button>
 
               <Link
                 href={`/ebooks/${product.slug}`}

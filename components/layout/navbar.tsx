@@ -119,12 +119,11 @@ export function Navbar() {
             <CurrencySelector variant="navbar" />
           </div>
 
-          <a
-            href={checkoutUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
             onClick={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               openCheckout({
                 slug: productSlug,
                 location: `${ctaLocation}_navbar_desktop`,
@@ -134,7 +133,7 @@ export function Navbar() {
             className="px-3.5 sm:px-4 py-2 min-h-[38px] inline-flex items-center text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] active:scale-[0.98] transition-all duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EEB149]"
           >
             PRENDRE LE PLAN
-          </a>
+          </button>
 
           <button
             type="button"
@@ -175,12 +174,11 @@ export function Navbar() {
             </div>
 
             <div className="space-y-1.5">
-              <a
-                href={checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   setMobileMenuOpen(false);
                   openCheckout({
                     slug: productSlug,
@@ -188,10 +186,10 @@ export function Navbar() {
                     triggerElement: e.currentTarget,
                   });
                 }}
-                className="flex items-center justify-center w-full py-3 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
+                className="flex items-center justify-center w-full py-3 px-4 text-xs font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors cursor-pointer"
               >
                 PRENDRE LE PLAN
-              </a>
+              </button>
               <p className="text-[11px] text-center text-[#A5A5A0]">
                 Paiement et accès via Chariow.
               </p>

@@ -138,12 +138,11 @@ export function BookPreviewReader({
                 {currentPage.lockedTeaser.ctaPrompt}
               </p>
               <div className="pt-2">
-                <a
-                  href={checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     if (onClose) onClose();
                     openCheckout({
                       slug: product.slug,
@@ -155,7 +154,7 @@ export function BookPreviewReader({
                 >
                   <span>{product.ctaLabel}</span>
                   <ArrowUpRight className="w-4 h-4" />
-                </a>
+                </button>
               </div>
             </div>
           </div>

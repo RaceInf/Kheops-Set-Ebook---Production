@@ -276,12 +276,11 @@ export function HeroSplit() {
         <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-[#565A5C]/30">
           <div className="space-y-2.5">
             <div className="flex flex-wrap items-center gap-4">
-              <a
-                href={checkoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   openCheckout({
                     slug: 'le-capital-du-batisseur',
                     location: 'home_hero_split',
@@ -291,7 +290,7 @@ export function HeroSplit() {
                 className="px-6 py-3.5 text-xs sm:text-sm font-semibold tracking-wider bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors duration-150 whitespace-nowrap cursor-pointer"
               >
                 PRENDRE LE PLAN
-              </a>
+              </button>
 
               <a
                 href="#produit-vedette"
