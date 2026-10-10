@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { CurrencyProvider } from '@/context/currency-context';
 import { CheckoutModalProvider } from '@/context/checkout-modal-context';
 import { ChariowCheckoutModal } from '@/components/checkout/ChariowCheckoutModal';
@@ -71,6 +72,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
+        <link rel="stylesheet" href="https://js.chariowcdn.com/v1/widget.min.css" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -104,6 +106,11 @@ export default function RootLayout({
         <CurrencyProvider>
           <CheckoutModalProvider>
             <PrivacyAnalytics />
+            <Script
+              id="chariow-widget-engine"
+              src="https://js.chariowcdn.com/v1/widget.min.js"
+              strategy="afterInteractive"
+            />
             {children}
             <ChariowCheckoutModal />
             <ScrollToTopButton />

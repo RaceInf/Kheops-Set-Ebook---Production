@@ -40,17 +40,17 @@ const isProd = process.env.NODE_ENV === 'production';
  * - base-uri 'self', object-src 'none'.
  */
 const scriptSrc = isProd
-  ? "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms"
-  : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms";
+  ? "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms https://js.chariowcdn.com"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms https://js.chariowcdn.com";
 
 const cspDirectives = [
   "default-src 'self'",
   scriptSrc,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' data: blob: https://picsum.photos https://drive.google.com https://*.googleusercontent.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.chariowcdn.com",
+  "img-src 'self' data: blob: https://picsum.photos https://drive.google.com https://*.googleusercontent.com https://*.chariowcdn.com https://*.chariow.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://www.clarity.ms",
-  "frame-src 'self' https://challenges.cloudflare.com https://fovqbyzx.mychariow.shop",
+  "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://www.clarity.ms https://api.chariow.com https://*.chariow.com https://*.mychariow.shop",
+  "frame-src 'self' https://challenges.cloudflare.com https://*.chariow.shop https://*.chariow.com https://fovqbyzx.mychariow.shop",
   "frame-ancestors 'self' https://*.run.app https://*.google.com https://aistudio.google.com",
   "form-action 'self'",
   "base-uri 'self'",

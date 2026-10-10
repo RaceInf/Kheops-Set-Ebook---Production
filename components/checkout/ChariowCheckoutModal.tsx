@@ -1,21 +1,16 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { X, ExternalLink, ShieldCheck, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { X, ExternalLink, ShieldCheck } from 'lucide-react';
 import { useCheckoutModal } from '@/context/checkout-modal-context';
 import { useCurrency } from '@/context/currency-context';
+import { ChariowSnapWidget } from '@/components/chariow/ChariowSnapWidget';
 
 export function ChariowCheckoutModal() {
   const { isOpen, activeProduct, closeCheckout } = useCheckoutModal();
   const { formatPrice, currency } = useCurrency();
-  const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
-  const [loadErrorSlug, setLoadErrorSlug] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  const activeSlug = activeProduct?.slug ?? null;
-  const iframeLoading = activeSlug !== null && loadedSlug !== activeSlug;
-  const hasLoadError = activeSlug !== null && loadErrorSlug === activeSlug;
 
   // Gestion du scroll du body et du focus initial
   useEffect(() => {
@@ -24,7 +19,7 @@ export function ChariowCheckoutModal() {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    // Focus sur le bouton de fermeture ou le conteneur pour l'accessibilité
+    // Focus sur le bouton de fermeture pour l'accessibilité
     const timer = setTimeout(() => {
       closeButtonRef.current?.focus();
     }, 50);
@@ -159,52 +154,21 @@ export function ChariowCheckoutModal() {
           </button>
         </div>
 
-        {/* Corps de la modale avec Iframe Chariow */}
-        <div className="relative flex-1 w-full bg-[#090909] overflow-hidden">
-          {/* Skeleton de chargement sobre */}
-          {iframeLoading && !hasLoadError && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#090909] text-center space-y-4 z-10">
-              <Loader2 className="w-8 h-8 text-[#EEB149] animate-spin" aria-hidden="true" />
-              <div className="space-y-1">
-                <p className="text-xs sm:text-sm font-semibold text-[#FFFFFF]">
-                  Connexion au checkout sécurisé Chariow...
-                </p>
-                <p className="text-[11px] font-mono text-[#A5A5A0]">
-                  Initialisation de la session de paiement
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Message de secours si l'iframe échoue à charger */}
-          {hasLoadError && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#090909] text-center space-y-4 z-10">
-              <p className="text-sm text-[#FFFFFF] max-w-sm">
-                La connexion directe intégrée n’a pas pu être établie. Tu peux poursuivre ton achat sur la page sécurisée Chariow.
-              </p>
-              <a
-                href={activeProduct.directCheckoutUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-semibold bg-[#EEB149] text-[#090909] hover:bg-[#FFFFFF] transition-colors"
-              >
-                <span>Accéder au checkout Chariow</span>
-                <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-              </a>
-            </div>
-          )}
-
-          {/* L'Iframe officielle Chariow */}
-          <iframe
-            key={activeProduct.slug}
-            src={activeProduct.iframeUrl}
-            title={`Checkout sécurisé Chariow pour ${activeProduct.title}`}
-            className="w-full h-full border-0 block"
-            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-top-navigation"
-            loading="eager"
-            onLoad={() => setLoadedSlug(activeProduct.slug)}
-            onError={() => setLoadErrorSlug(activeProduct.slug)}
-          />
+        {/* Corps de la modale avec Chariow Snap Widget */}
+        <div className="relative flex-1 w-full bg-[#090909] overflow-y-auto p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start">
+          <div className="w-full max-w-xl mx-auto my-auto py-2">
+            <ChariowSnapWidget
+              key={activeProduct.slug}
+              productId={activeProduct.snapId}
+              storeDomain="fovqbyzx.mychariow.shop"
+              style="frame"
+              borderStyle="rounded"
+              ctaWidth="xs"
+              ctaAnimation="none"
+              locale="en"
+              backgroundColor="#FFFFFF"
+            />
+          </div>
         </div>
 
         {/* Pied de dialogue avec secours et mentions légales */}

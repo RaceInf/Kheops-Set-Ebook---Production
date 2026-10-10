@@ -141,7 +141,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-[#565A5C]/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono text-[#A5A5A0]">
-          <span>© {new Date().getFullYear()} KHEOPS SET. TOUS DROITS RÉSERVÉS.</span>
+          <span suppressHydrationWarning>© {new Date().getFullYear()} KHEOPS SET. TOUS DROITS RÉSERVÉS.</span>
           <span>PAIEMENT ET LIVRAISON SÉCURISÉS VIA CHARIOW.</span>
         </div>
       </div>

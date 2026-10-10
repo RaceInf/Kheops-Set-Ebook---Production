@@ -13,6 +13,7 @@ import {
 import { PriceDisplay } from '@/components/ui/price-display';
 import { FeaturedBookCard } from '@/components/products/FeaturedBookCard';
 import { BookPreviewReader } from '@/components/products/BookPreviewReader';
+import { ChariowSnapWidget } from '@/components/chariow/ChariowSnapWidget';
 import {
   IconPdf,
   IconBlueprint,
