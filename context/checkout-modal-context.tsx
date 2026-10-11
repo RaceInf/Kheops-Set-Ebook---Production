@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import {
   CAPITAL_PRODUCT,
   CODE_PRODUCT,
@@ -11,7 +11,7 @@ import {
   OFFICIAL_CHARIOW_CAPITAL_CHECKOUT,
   OFFICIAL_CHARIOW_CODE_CHECKOUT,
 } from '@/lib/products';
-import { trackCtaClick, trackEvent } from '@/lib/analytics';
+import { trackCtaClick } from '@/lib/analytics';
 
 export type CheckoutProductSlug = 'le-capital-du-batisseur' | 'le-code-du-batisseur';
 
@@ -71,6 +71,9 @@ interface CheckoutModalContextType {
 const CheckoutModalContext = createContext<CheckoutModalContextType | undefined>(undefined);
 
 export function CheckoutModalProvider({ children }: { children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<CheckoutProductConfig | null>(null);
+
   const openCheckout = useCallback(({ slug, location }: OpenCheckoutOptions) => {
     const resolvedSlug: CheckoutProductSlug =
       slug === 'le-code-du-batisseur' || slug === 'code'
@@ -79,34 +82,27 @@ export function CheckoutModalProvider({ children }: { children: React.ReactNode 
 
     const productConfig = CHECKOUT_PRODUCTS[resolvedSlug];
 
-    // 1. Envoyer l'événement GA4 cta_click (avec transport beacon)
+    // 1. Émettre un événement unique GA4 cta_click (avec transport beacon)
     trackCtaClick({
       cta_name: productConfig.ctaName,
       cta_location: location,
       link_url: productConfig.directCheckoutUrl,
     });
 
-    trackEvent('click_buy_chariow', {
-      product_slug: resolvedSlug,
-      location,
-    });
-
-    // 2. Ouvrir le checkout Chariow dans un nouvel onglet sécurisé
-    // (Évite le blocage d'iframe par checkout.orqex.com lors du clic sur Payer maintenant)
-    if (typeof window !== 'undefined') {
-      window.open(productConfig.directCheckoutUrl, '_blank', 'noopener,noreferrer');
-    }
+    // 2. Ouvrir la modale Snap Chariow sur la page (sans nouvel onglet)
+    setActiveProduct(productConfig);
+    setIsOpen(true);
   }, []);
 
   const closeCheckout = useCallback(() => {
-    // No-op for direct secure tab redirect
+    setIsOpen(false);
   }, []);
 
   return (
     <CheckoutModalContext.Provider
       value={{
-        isOpen: false,
-        activeProduct: null,
+        isOpen,
+        activeProduct,
         openCheckout,
         closeCheckout,
       }}

@@ -22,7 +22,10 @@ export function ChariowCheckoutModal() {
     // Focus sur le bouton de fermeture pour l'accessibilité
     const timer = setTimeout(() => {
       closeButtonRef.current?.focus();
-    }, 50);
+      if (typeof window !== 'undefined' && window.Chariow && typeof window.Chariow.initializeWidget === 'function') {
+        window.Chariow.initializeWidget();
+      }
+    }, 60);
 
     return () => {
       document.body.style.overflow = originalOverflow;
@@ -180,8 +183,7 @@ export function ChariowCheckoutModal() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-[#EEB149] hover:text-[#FFFFFF] transition-colors underline underline-offset-2"
           >
-            <span>Ouvrir dans un nouvel onglet</span>
-            <ExternalLink className="w-3 h-3" aria-hidden="true" />
+            <span>Ouvrir le paiement sur Chariow ↗</span>
           </a>
         </div>
       </div>
