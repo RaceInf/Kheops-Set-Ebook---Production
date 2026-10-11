@@ -2,29 +2,22 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { CurrencyCode } from '@/lib/products';
-
-interface CurrencyRates {
-  XAF: number;
-  XOF: number;
-  EUR: number;
-  USD: number;
-}
+import {
+  FALLBACK_RATES,
+  formatCurrencyAmount,
+  CURRENCY_INDICATIVE_NOTICE,
+  type CurrencyRates,
+} from '@/lib/currency-rates';
 
 interface CurrencyContextValue {
   currency: CurrencyCode;
   setCurrency: (code: CurrencyCode) => void;
   rates: CurrencyRates;
+  indicativeNotice: string;
   formatBaseXAF: (amountInXAF: number) => string;
   formatPrice: (amountInXAF: number, target?: CurrencyCode) => string;
   formatEstimated: (amountInXAF: number, target?: CurrencyCode) => string | null;
 }
-
-const DEFAULT_RATES: CurrencyRates = {
-  XAF: 1,
-  XOF: 1,
-  EUR: 1 / 655.957,
-  USD: 1 / 604.5,
-};
 
 const STORAGE_KEY = 'kheops_preferred_currency';
 
@@ -33,7 +26,7 @@ const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefine
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   // Toujours initialiser à 'XAF' côté serveur et client initial pour éviter tout Hydration Mismatch
   const [currency, setCurrencyState] = useState<CurrencyCode>('XAF');
-  const [rates, setRates] = useState<CurrencyRates>(DEFAULT_RATES);
+  const [rates, setRates] = useState<CurrencyRates>(FALLBACK_RATES);
 
   useEffect(() => {
     // Synchroniser la devise enregistrée après l'hydratation initiale propre
@@ -57,7 +50,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .catch(() => {
-        // Keep safe fallback rates
+        // Conserver les taux de secours fiables sans jamais bloquer l'interface
       });
 
     return () => {
@@ -87,44 +80,9 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   const formatPrice = useCallback(
     (amountInXAF: number, target: CurrencyCode = currency): string => {
-      if (target === 'XAF') {
-        return formatBaseXAF(amountInXAF);
-      }
-
-      if (target === 'XOF') {
-        const formattedNumber = new Intl.NumberFormat('fr-FR', {
-          maximumFractionDigits: 0,
-        })
-          .format(Math.round(amountInXAF))
-          .replace(/\u202f/g, ' ')
-          .replace(/\u00a0/g, ' ');
-        return `${formattedNumber} XOF`;
-      }
-
-      const rate = rates[target] ?? DEFAULT_RATES[target];
-      const converted = amountInXAF * rate;
-
-      if (target === 'EUR') {
-        return new Intl.NumberFormat('fr-FR', {
-          style: 'currency',
-          currency: 'EUR',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(converted);
-      }
-
-      if (target === 'USD') {
-        return new Intl.NumberFormat('fr-FR', {
-          style: 'currency',
-          currency: 'USD',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(converted);
-      }
-
-      return formatBaseXAF(amountInXAF);
+      return formatCurrencyAmount(amountInXAF, target, rates);
     },
-    [currency, rates, formatBaseXAF]
+    [currency, rates]
   );
 
   const formatEstimated = useCallback(
@@ -143,6 +101,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         currency,
         setCurrency,
         rates,
+        indicativeNotice: CURRENCY_INDICATIVE_NOTICE,
         formatBaseXAF,
         formatPrice,
         formatEstimated,

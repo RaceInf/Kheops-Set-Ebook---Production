@@ -10,7 +10,7 @@ import { IconArrowUpRight, IconPdf } from '@/components/icons/kheops-icons';
 import { useCheckoutModal } from '@/context/checkout-modal-context';
 
 export function ProductUpsellCards() {
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice, formatBaseXAF, currency, indicativeNotice } = useCurrency();
   const { openCheckout } = useCheckoutModal();
 
   return (
@@ -143,6 +143,11 @@ export function ProductUpsellCards() {
                           {originalFormatted}
                         </span>
                       )}
+                      {currency !== 'XAF' && (
+                        <span className="text-xs text-[#A5A5A0] font-mono">
+                          (Base : {formatBaseXAF(priceInfo.activePriceXaf)})
+                        </span>
+                      )}
                     </div>
 
                     {priceInfo.isOnSale && (
@@ -152,6 +157,12 @@ export function ProductUpsellCards() {
                       />
                     )}
                   </div>
+
+                  {currency !== 'XAF' && (
+                    <p className="text-[10px] font-mono text-[#A5A5A0]/80 leading-snug">
+                      {indicativeNotice}
+                    </p>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button

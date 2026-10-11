@@ -8,7 +8,7 @@ import { ChariowSnapWidget } from '@/components/chariow/ChariowSnapWidget';
 
 export function ChariowCheckoutModal() {
   const { isOpen, activeProduct, closeCheckout } = useCheckoutModal();
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice, formatBaseXAF, currency } = useCurrency();
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -143,6 +143,11 @@ export function ChariowCheckoutModal() {
               <span className="text-xs sm:text-sm font-semibold text-[#EEB149] font-mono">
                 {displayPrice}
               </span>
+              {currency !== 'XAF' && (
+                <span className="text-[11px] text-[#A5A5A0] font-mono">
+                  (Base : {formatBaseXAF(activeProduct.priceXaf)})
+                </span>
+              )}
             </div>
           </div>
 
