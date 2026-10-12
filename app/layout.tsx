@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 import { CurrencyProvider } from '@/context/currency-context';
 import { CheckoutModalProvider } from '@/context/checkout-modal-context';
 import { ChariowCheckoutModal } from '@/components/checkout/ChariowCheckoutModal';
@@ -116,6 +117,7 @@ export default function RootLayout({
             <ScrollToTopButton />
           </CheckoutModalProvider>
         </CurrencyProvider>
+        <Analytics />
       </body>
     </html>
   );
