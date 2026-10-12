@@ -8,127 +8,104 @@ export interface AIInsightResult {
   insight?: string;
   error?: string;
   meta?: {
-    periodLabel: string;
-    totalRevenue: number;
-    ordersCount: number;
-    leadsCount: number;
-    errorsCount: number;
+    totalRevenue7d: number;
+    ordersCount7d: number;
+    leadsCount7d: number;
+    errorsCount7d: number;
   };
 }
 
-export async function generateAIInsight(
-  period: '7d' | '30d' | 'year' | 'all' = '7d',
-  userPrompt?: string
-): Promise<AIInsightResult> {
+export async function generateAIInsight(): Promise<AIInsightResult> {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey || apiKey.trim() === '') {
     return {
       success: false,
-      error: 'Clé GEMINI_API_KEY manquante dans les variables d’environnement (.env.local).',
+      error:
+        'Clé GEMINI_API_KEY manquante. Veuillez la renseigner dans les variables d’environnement (.env.local).',
     };
   }
 
   try {
-    const now = new Date();
-    const startDate = new Date();
-    let periodLabel = '7 derniers jours';
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    if (period === '30d') {
-      startDate.setDate(now.getDate() - 30);
-      periodLabel = '30 derniers jours';
-    } else if (period === 'year') {
-      startDate.setFullYear(now.getFullYear(), 0, 1); // 1er janvier de cette année
-      periodLabel = 'Année en cours';
-    } else if (period === 'all') {
-      startDate.setFullYear(2020, 0, 1); // Historique complet
-      periodLabel = 'Historique complet';
-    } else {
-      startDate.setDate(now.getDate() - 7);
-      periodLabel = '7 derniers jours';
-    }
-
-    // Récupération des données Prisma sur la période
-    const [ordersAgg, ordersCount, leadsCount, errorsCount, allOrders, allLeads] = await Promise.all([
+    // 1. Récupération des données opérationnelles des 7 derniers jours
+    const [ordersAgg, ordersCount, leadsCount, errorsCount] = await Promise.all([
       prisma.order.aggregate({
         _sum: { amount: true },
         where: {
-          createdAt: { gte: startDate },
+          createdAt: { gte: sevenDaysAgo },
           status: { in: ['COMPLETED', 'completed', 'PAID', 'paid'] },
         },
       }),
       prisma.order.count({
         where: {
-          createdAt: { gte: startDate },
+          createdAt: { gte: sevenDaysAgo },
         },
       }),
       prisma.lead.count({
         where: {
-          createdAt: { gte: startDate },
+          createdAt: { gte: sevenDaysAgo },
         },
       }),
       prisma.systemLog.count({
         where: {
-          createdAt: { gte: startDate },
+          createdAt: { gte: sevenDaysAgo },
           level: { in: ['ERROR', 'error'] },
         },
       }),
-      prisma.order.findMany({
-        where: { createdAt: { gte: startDate } },
-        select: { productSlug: true, amount: true, currency: true, createdAt: true },
-      }),
-      prisma.lead.findMany({
-        where: { createdAt: { gte: startDate } },
-        select: { source: true, createdAt: true },
-      }),
     ]);
 
-    const totalRevenue = ordersAgg._sum.amount ?? 0;
+    const totalRevenue7d = ordersAgg._sum.amount ?? 0;
+    const ordersCount7d = ordersCount;
+    const leadsCount7d = leadsCount;
+    const errorsCount7d = errorsCount;
 
+    // 2. Formatage des données pour l'analyse
     const dataContext = `
-Données opérationnelles de Kheops Set (${periodLabel}, du ${startDate.toLocaleDateString('fr-FR')} au ${now.toLocaleDateString('fr-FR')}) :
-- Chiffre d'Affaires encaissé : ${totalRevenue} FCFA
-- Nombre de commandes : ${ordersCount}
-- Nouveaux leads capturés : ${leadsCount}
-- Erreurs critiques système : ${errorsCount}
-- Détail des ventes : ${JSON.stringify(allOrders)}
-- Sources des leads : ${JSON.stringify(allLeads)}
+Données opérationnelles de Kheops Set (Derniers 7 jours) :
+- Chiffre d'Affaires encaissé : ${totalRevenue7d} FCFA
+- Nombre de commandes : ${ordersCount7d}
+- Nouveaux leads capturés (Protocole / Contact) : ${leadsCount7d}
+- Erreurs critiques système / blocages : ${errorsCount7d}
     `.trim();
 
+    // 3. Appel au SDK @google/genai
     const ai = new GoogleGenAI({ apiKey });
-
-    const systemInstruction = `Tu es le Directeur de Stratégie et l'IA décisionnelle de Kheops Set.
-La philosophie de la marque est "L'Acier Bienveillant" : ton direct, calme, exigeant, lucide, sans fioritures ni motivation creuse.
-Une vie est un chantier, une entreprise est une structure.
-Réponds à la demande de l'administrateur en te basant rigoureusement sur les données chiffrées de la période sélectionnée (${periodLabel}).
-Si l'administrateur pose une question précise, réponds-lui directement avec précision et pragmatisme.
-Sinon, donne 3 bullet points structurés :
-1. LE CONSTAT : Analyse factuelle des chiffres.
-2. L'ALERTE : Point de vigilance opérationnel ou technique.
-3. LA RECOMMANDATION : Action prioritaire immédiate.`;
-
-    const promptText = userPrompt
-      ? `Question de l'administrateur : "${userPrompt}"\n\nContexte des données de la période :\n${dataContext}`
-      : `Analyse ces données de la période (${periodLabel}) et génère ton rapport stratégique :\n${dataContext}`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.8-flash',
-      contents: promptText,
+      contents: `Analyse ces données de la semaine et génère ton rapport :\n${dataContext}`,
       config: {
-        systemInstruction,
-        temperature: 0.3,
+        systemInstruction: `Tu es le Directeur de Stratégie et l'IA stratégique de Kheops Set.
+La philosophie de la marque est "L'Acier Bienveillant" : ton direct, calme, exigeant, lucide, sans fioritures ni motivation creuse.
+Une vie est un chantier, une entreprise est une structure.
+Analyse les datas de la semaine fournies et donne STRICTEMENT 3 bullet points :
+1. LE CONSTAT : Une observation factuelle, froide et précise sur les chiffres de la semaine.
+2. L'ALERTE : Un point de vigilance opérationnel, technique (erreurs, conversions faibles) ou d'exécution.
+3. LA RECOMMANDATION : Une action prioritaire concrète, immédiatement exécutable (marketing ou technique).
+
+Format attendu :
+• CONSTAT : [ton texte concis]
+• ALERTE : [ton texte concis]
+• RECOMMANDATION : [ton texte concis]
+
+Sois bref, percutant et professionnel. Pas de bavardage introductif ni de conclusion.`,
+        temperature: 0.2,
       },
     });
 
+    const insightText = response.text || 'Analyse indisponible.';
+
     return {
       success: true,
-      insight: response.text || 'Analyse indisponible.',
+      insight: insightText,
       meta: {
-        periodLabel,
-        totalRevenue,
-        ordersCount,
-        leadsCount,
-        errorsCount,
+        totalRevenue7d,
+        ordersCount7d,
+        leadsCount7d,
+        errorsCount7d,
       },
     };
   } catch (error) {
@@ -138,7 +115,7 @@ Sinon, donne 3 bullet points structurés :
       error:
         error instanceof Error
           ? `Échec de l’analyse IA : ${error.message}`
-          : 'Erreur inattendue lors de la génération de l’insight IA.',
+          : 'Erreur inattendue lors de la génération du rapport IA.',
     };
   }
 }
