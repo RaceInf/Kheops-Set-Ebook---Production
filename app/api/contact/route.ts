@@ -192,20 +192,30 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Étape D : Enregistrement du lead dans la base de données Prisma
+    // Étape D : Enregistrement du lead dans la base de données Prisma (robuste)
     try {
-      await prisma.lead.upsert({
-        where: { email: sanitizedPayload.email.trim().toLowerCase() },
-        update: {
-          firstName: sanitizedPayload.name || undefined,
-          source: 'formulaire_contact',
-        },
-        create: {
-          email: sanitizedPayload.email.trim().toLowerCase(),
-          firstName: sanitizedPayload.name || null,
-          source: 'formulaire_contact',
-        },
+      const contactEmail = sanitizedPayload.email.trim().toLowerCase();
+      const existingLead = await prisma.lead.findUnique({
+        where: { email: contactEmail },
       });
+
+      if (existingLead) {
+        await prisma.lead.update({
+          where: { email: contactEmail },
+          data: {
+            firstName: sanitizedPayload.name || existingLead.firstName,
+            source: 'formulaire_contact',
+          },
+        });
+      } else {
+        await prisma.lead.create({
+          data: {
+            email: contactEmail,
+            firstName: sanitizedPayload.name || null,
+            source: 'formulaire_contact',
+          },
+        });
+      }
     } catch (dbErr) {
       logger.error({
         event: 'contact_lead_db_save_failed',

@@ -132,20 +132,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 12. Enregistrement du lead dans la base de données Prisma
+  // 12. Enregistrement du lead dans la base de données Prisma (robuste sans contrainte unique stricte)
   try {
-    await prisma.lead.upsert({
+    const existingLead = await prisma.lead.findUnique({
       where: { email: cleanEmail },
-      update: {
-        firstName: cleanFirstName || undefined,
-        source: 'protocole_du_batisseur',
-      },
-      create: {
-        email: cleanEmail,
-        firstName: cleanFirstName || null,
-        source: 'protocole_du_batisseur',
-      },
     });
+
+    if (existingLead) {
+      await prisma.lead.update({
+        where: { email: cleanEmail },
+        data: {
+          firstName: cleanFirstName || existingLead.firstName,
+          source: 'protocole_du_batisseur',
+        },
+      });
+    } else {
+      await prisma.lead.create({
+        data: {
+          email: cleanEmail,
+          firstName: cleanFirstName || null,
+          source: 'protocole_du_batisseur',
+        },
+      });
+    }
   } catch (dbError) {
     logger.error({
       event: 'newsletter_lead_db_save_failed',
