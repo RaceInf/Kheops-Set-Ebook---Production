@@ -15,6 +15,7 @@ import {
   sendContactNotificationEmail,
   sendContactAcknowledgmentEmail,
 } from '@/lib/brevo';
+import { prisma } from '@/lib/db';
 
 const SAFE_TEXT_REGEX = /^[^\u0000-\u001F\u007F<>]+$/;
 
@@ -191,16 +192,26 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Étape C : Envoi de l'accusé de réception automatique au visiteur (gracieux)
-    sendContactAcknowledgmentEmail(sanitizedPayload).catch((ackErr) => {
-      logger.warn({
-        event: 'contact_acknowledgment_email_error',
-        message: ackErr instanceof Error ? ackErr.message : 'Erreur accusé',
-        meta: {
-          email: logger.maskEmail(sanitizedPayload.email),
+    // Étape D : Enregistrement du lead dans la base de données Prisma
+    try {
+      await prisma.lead.upsert({
+        where: { email: sanitizedPayload.email.trim().toLowerCase() },
+        update: {
+          firstName: sanitizedPayload.name || undefined,
+          source: 'formulaire_contact',
+        },
+        create: {
+          email: sanitizedPayload.email.trim().toLowerCase(),
+          firstName: sanitizedPayload.name || null,
+          source: 'formulaire_contact',
         },
       });
-    });
+    } catch (dbErr) {
+      logger.error({
+        event: 'contact_lead_db_save_failed',
+        message: dbErr instanceof Error ? dbErr.message : 'Erreur sauvegarde Lead Prisma',
+      });
+    }
   } catch (brevoErr) {
     logger.error({
       event: 'contact_processing_background_error',

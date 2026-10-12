@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ProductDetailPageExperience } from '@/components/products/ProductDetailPageExperience';
-import { AVAILABLE_PRODUCTS, getProductBySlug } from '@/lib/products';
+import { AVAILABLE_PRODUCTS } from '@/lib/products';
+import { getProductWithDbOverride } from '@/lib/product-db';
 import { serializeJsonLd } from '@/lib/structured-data';
 
 interface EbookDetailPageProps {
@@ -22,7 +23,7 @@ export async function generateMetadata({
   params,
 }: EbookDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductWithDbOverride(slug);
 
   if (!product) {
     return {
@@ -65,7 +66,7 @@ export async function generateMetadata({
 
 export default async function EbookDetailPage({ params }: EbookDetailPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductWithDbOverride(slug);
 
   if (!product) {
     notFound();

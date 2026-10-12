@@ -11,6 +11,7 @@ import { verifyTurnstileToken } from '@/lib/turnstile';
 import { syncProtocolContact } from '@/lib/brevo';
 import { requireNewsletterConfig } from '@/lib/env/server';
 import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   // 1. Vérification méthode POST (HTTP 405)
@@ -129,6 +130,27 @@ export async function POST(req: NextRequest) {
       },
       { status: 500 }
     );
+  }
+
+  // 12. Enregistrement du lead dans la base de données Prisma
+  try {
+    await prisma.lead.upsert({
+      where: { email: cleanEmail },
+      update: {
+        firstName: cleanFirstName || undefined,
+        source: 'protocole_du_batisseur',
+      },
+      create: {
+        email: cleanEmail,
+        firstName: cleanFirstName || null,
+        source: 'protocole_du_batisseur',
+      },
+    });
+  } catch (dbError) {
+    logger.error({
+      event: 'newsletter_lead_db_save_failed',
+      message: dbError instanceof Error ? dbError.message : 'Erreur sauvegarde Lead Prisma',
+    });
   }
 
   logger.audit('newsletter_subscription_completed', {

@@ -14,6 +14,7 @@ import {
 import { addCustomerToCapitalList, addCustomerToCodeList } from '@/lib/brevo';
 import { logger } from '@/lib/logger';
 import { requireChariowWebhookConfig } from '@/lib/env/server';
+import { prisma } from '@/lib/db';
 
 const MAX_WEBHOOK_BODY_BYTES = 64 * 1024; // 64 KB max
 
@@ -205,6 +206,25 @@ export async function POST(req: NextRequest) {
       await addCustomerToCapitalList(customerEmail, customerFirstName);
     } else if (validation.productSlug === 'le-code-du-batisseur') {
       await addCustomerToCodeList(customerEmail, customerFirstName);
+    }
+
+    // 13. Enregistrement de la vente dans la base de données Prisma
+    try {
+      await prisma.order.create({
+        data: {
+          chariowId: deliveryId,
+          email: customerEmail,
+          productSlug: validation.productSlug,
+          amount: Number(payload.sale?.amount?.value) || 0,
+          currency: payload.sale?.amount?.currency || 'XAF',
+          status: 'COMPLETED',
+        },
+      });
+    } catch (dbError) {
+      logger.error({
+        event: 'chariow_order_db_save_failed',
+        message: dbError instanceof Error ? dbError.message : 'Erreur sauvegarde Order Prisma',
+      });
     }
 
     // Validation finale de l'idempotence (chariow:processed:<deliveryId>, TTL 7 jours)

@@ -1,3 +1,5 @@
+import { prisma } from '@/lib/db';
+
 type LogLevel = 'info' | 'warn' | 'error';
 
 interface LogPayload {
@@ -137,6 +139,29 @@ function emit(level: LogLevel, payload: LogPayload) {
     } else {
       console.log(prefix, safeData.message || '', safeData.meta || '');
     }
+  }
+
+  // Sauvegarde asynchrone dans la table SystemLog pour les erreurs et les événements de sécurité/chariow
+  const shouldPersist =
+    level === 'error' ||
+    payload.event.startsWith('security_') ||
+    payload.event.startsWith('chariow_');
+
+  if (shouldPersist && typeof window === 'undefined') {
+    Promise.resolve().then(async () => {
+      try {
+        await prisma.systemLog.create({
+          data: {
+            level: level.toUpperCase(),
+            event: payload.event,
+            message: payload.message ? String(payload.message).slice(0, 1000) : payload.event,
+            meta: safeMeta ? JSON.stringify(safeMeta, null, 2) : null,
+          },
+        });
+      } catch {
+        // En cas d'erreur DB (ex: migration non faite), ne bloque jamais le fil d'exécution principal
+      }
+    });
   }
 }
 

@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String?
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  chariowId   String?  @unique
+  email       String
+  productSlug String
+  amount      Float
+  currency    String   @default("XAF")
+  status      String   @default("COMPLETED")
+  createdAt   DateTime @default(now())
+}
+
+model ProductConfig {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  priceXaf     Int
+  salePriceXaf Int?
+  isOnSale     Boolean  @default(false)
+  isFeatured   Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   @default("INFO")
+  event     String
+  message   String
+  meta      String?
+  createdAt DateTime @default(now())
+}
