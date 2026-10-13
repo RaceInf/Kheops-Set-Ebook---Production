@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db';
+import { saveLocalProductConfig } from '@/lib/local-fallback';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 export interface UpdateProductState {
@@ -55,17 +56,26 @@ export async function updateProductConfigAction(
         coverImage: coverImage || null,
       },
     });
-
-    revalidatePath(`/ebooks/${slug}`);
-    revalidatePath('/ebooks');
-    revalidatePath('/');
-    revalidatePath('/admin/products');
-    revalidatePath(`/admin/products/${slug}`);
-    revalidateTag('product-config');
-
-    return { success: true };
-  } catch (error) {
-    console.error('[updateProductConfigAction Error]:', error);
-    return { error: 'Une erreur est survenue lors de l’enregistrement de la configuration.' };
+  } catch (dbError) {
+    console.warn('[Prisma upsert failed, saving to local JSON fallback]:', dbError);
+    saveLocalProductConfig({
+      slug,
+      title: slug === 'le-capital-du-batisseur' ? 'Le Capital du Bâtisseur' : 'Le Code du Bâtisseur',
+      priceXaf,
+      salePriceXaf,
+      isOnSale: isOnSaleBool,
+      isFeatured: false,
+      coverImage: coverImage || null,
+      updatedAt: new Date().toISOString(),
+    });
   }
+
+  revalidatePath(`/ebooks/${slug}`);
+  revalidatePath('/ebooks');
+  revalidatePath('/');
+  revalidatePath('/admin/products');
+  revalidatePath(`/admin/products/${slug}`);
+  revalidateTag('product-config');
+
+  return { success: true };
 }

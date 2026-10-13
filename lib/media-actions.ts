@@ -1,6 +1,6 @@
 'use server';
 
-import { put, del } from '@vercel/blob';
+import { put, del, list } from '@vercel/blob';
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import fs from 'fs/promises';
@@ -37,10 +37,10 @@ export async function uploadMediaAction(formData: FormData): Promise<UploadMedia
     return { success: false, error: 'Aucun fichier sélectionné ou fichier vide.' };
   }
 
-  // Limite de taille : 30 Mo
-  const MAX_SIZE = 30 * 1024 * 1024;
+  // Limite de taille : 50 Mo
+  const MAX_SIZE = 50 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
-    return { success: false, error: 'Le fichier dépasse la limite autorisée de 30 Mo.' };
+    return { success: false, error: 'Le fichier dépasse la limite autorisée de 50 Mo.' };
   }
 
   // Nettoyage du nom de fichier
@@ -111,7 +111,7 @@ export async function uploadMediaAction(formData: FormData): Promise<UploadMedia
 }
 
 /**
- * Récupère tous les médias enregistrés, fusionnés avec les assets clés du système
+ * Récupère tous les médias enregistrés, synchronise Vercel Blob si configuré, et fusionne avec les assets système
  */
 export async function getMediaListAction(): Promise<MediaItem[]> {
   const defaultAssets: MediaItem[] = [
@@ -154,6 +154,36 @@ export async function getMediaListAction(): Promise<MediaItem[]> {
   ];
 
   try {
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+
+    // Si Vercel Blob est configuré, récupérer les blobs réels pour synchroniser
+    if (blobToken && blobToken.trim() !== '') {
+      try {
+        const { blobs } = await list({ token: blobToken });
+        for (const blob of blobs) {
+          // Vérifier si le blob existe déjà en base Prisma
+          const existing = await prisma.media.findFirst({
+            where: { url: blob.url },
+          });
+          if (!existing) {
+            await prisma.media.create({
+              data: {
+                name: blob.pathname.split('/').pop() || 'Fichier Vercel Blob',
+                url: blob.url,
+                pathname: blob.pathname,
+                size: blob.size,
+                mimeType: blob.pathname.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+                category: blob.pathname.endsWith('.pdf') ? 'documents' : 'covers',
+                createdAt: new Date(blob.uploadedAt),
+              },
+            }).catch(() => {});
+          }
+        }
+      } catch (blobErr) {
+        console.warn('[Vercel Blob sync warning]:', blobErr);
+      }
+    }
+
     const dbMedia = await prisma.media.findMany({
       orderBy: { createdAt: 'desc' },
     });
