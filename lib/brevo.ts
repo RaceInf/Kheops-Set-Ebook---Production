@@ -1,4 +1,5 @@
 import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/db';
 
 export interface BrevoSyncResult {
   ok: boolean;
@@ -783,4 +784,390 @@ export async function sendContactAcknowledgmentEmail(params: {
   } catch {
     return { ok: false };
   }
+}
+
+/**
+ * ==============================================================================
+ * 5. TABLEAU DE BORD MARKETING & STATISTIQUES BREVO
+ * ==============================================================================
+ */
+
+export interface BrevoMarketingListInfo {
+  id: number | null;
+  name: string;
+  count: number;
+  description: string;
+}
+
+export interface BrevoMarketingStats {
+  isConfigured: boolean;
+  totalSent: number;
+  totalDelivered: number;
+  uniqueOpens: number;
+  uniqueClicks: number;
+  openRate: string;
+  clickRate: string;
+  lists: {
+    protocol: BrevoMarketingListInfo;
+    capitalBuyers: BrevoMarketingListInfo;
+    codeBuyers: BrevoMarketingListInfo;
+    contactPublic: BrevoMarketingListInfo;
+  };
+  totalAudience: number;
+}
+
+/**
+ * Récupère le nombre d'abonnés d'une liste Brevo
+ */
+async function fetchBrevoListSubscribers(
+  apiKey: string,
+  listId: number | null
+): Promise<number | null> {
+  if (!listId) return null;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`https://api.brevo.com/v3/contacts/lists/${listId}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'api-key': apiKey,
+      },
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Number(data.uniqueSubscribers ?? data.totalSubscribers ?? 0);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Récupère les statistiques SMTP globales de Brevo (derniers 30 jours)
+ */
+async function fetchBrevoSmtpReports(apiKey: string): Promise<{
+  delivered: number;
+  opens: number;
+  clicks: number;
+  requests: number;
+} | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch('https://api.brevo.com/v3/smtp/statistics/reports?days=30', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'api-key': apiKey,
+      },
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const reports = Array.isArray(data?.reports) ? data.reports : [];
+
+    let delivered = 0;
+    let opens = 0;
+    let clicks = 0;
+    let requests = 0;
+
+    for (const r of reports) {
+      delivered += Number(r.delivered || 0);
+      opens += Number(r.uniqueOpens || r.opens || 0);
+      clicks += Number(r.uniqueClicks || r.clicks || 0);
+      requests += Number(r.requests || 0);
+    }
+
+    return { delivered, opens, clicks, requests };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Récupère les métriques marketing complètes de Brevo croisées avec la base Prisma
+ */
+export async function getBrevoMarketingStats(): Promise<BrevoMarketingStats> {
+  const apiKey = process.env.BREVO_API_KEY;
+  const isConfigured = Boolean(apiKey && apiKey.trim() !== '');
+
+  const protocolListId = resolveBrevoListId('PROTOCOLE_DU_BATISSEUR');
+  const capitalListId = resolveBrevoListId('CLIENTS_CAPITAL_DU_BATISSEUR');
+  const codeListId = resolveBrevoListId('CLIENTS_CODE_DU_BATISSEUR');
+  const contactListId = resolveBrevoListId('CONTACTS');
+
+  // 1. Récupération des comptages locaux Prisma en parallèle
+  let dbProtocolCount = 0;
+  let dbCapitalCount = 0;
+  let dbCodeCount = 0;
+  let dbContactCount = 0;
+
+  try {
+    const [protocolLeads, capitalOrders, codeOrders, contactLeads] = await Promise.all([
+      prisma.lead.count({ where: { source: 'protocole_du_batisseur' } }),
+      prisma.order.count({ where: { productSlug: { in: ['le-capital-du-batisseur', 'captaldubatisseur'] } } }),
+      prisma.order.count({ where: { productSlug: { in: ['le-code-du-batisseur', 'codedubatisseur'] } } }),
+      prisma.lead.count({ where: { source: 'formulaire_contact' } }),
+    ]);
+    dbProtocolCount = protocolLeads;
+    dbCapitalCount = capitalOrders;
+    dbCodeCount = codeOrders;
+    dbContactCount = contactLeads;
+  } catch (err) {
+    console.warn('[Prisma stats count warning]:', err);
+  }
+
+  // 2. Si Brevo est configuré, interroger l'API Brevo v3
+  let brevoReports: { delivered: number; opens: number; clicks: number; requests: number } | null = null;
+  let brevoProtocolCount: number | null = null;
+  let brevoCapitalCount: number | null = null;
+  let brevoCodeCount: number | null = null;
+  let brevoContactCount: number | null = null;
+
+  if (isConfigured && apiKey) {
+    const [reports, pCount, capCount, cdCount, cntCount] = await Promise.all([
+      fetchBrevoSmtpReports(apiKey),
+      fetchBrevoListSubscribers(apiKey, protocolListId),
+      fetchBrevoListSubscribers(apiKey, capitalListId),
+      fetchBrevoListSubscribers(apiKey, codeListId),
+      fetchBrevoListSubscribers(apiKey, contactListId),
+    ]);
+    brevoReports = reports;
+    brevoProtocolCount = pCount;
+    brevoCapitalCount = capCount;
+    brevoCodeCount = cdCount;
+    brevoContactCount = cntCount;
+  }
+
+  const finalProtocolCount = brevoProtocolCount ?? dbProtocolCount;
+  const finalCapitalCount = brevoCapitalCount ?? dbCapitalCount;
+  const finalCodeCount = brevoCodeCount ?? dbCodeCount;
+  const finalContactCount = brevoContactCount ?? dbContactCount;
+
+  const totalDelivered = brevoReports?.delivered ?? 0;
+  const totalSent = brevoReports?.requests ?? totalDelivered;
+  const uniqueOpens = brevoReports?.opens ?? 0;
+  const uniqueClicks = brevoReports?.clicks ?? 0;
+
+  const openRate = totalDelivered > 0 ? `${((uniqueOpens / totalDelivered) * 100).toFixed(1)}%` : '0.0%';
+  const clickRate = totalDelivered > 0 ? `${((uniqueClicks / totalDelivered) * 100).toFixed(1)}%` : '0.0%';
+  const totalAudience = finalProtocolCount + finalCapitalCount + finalCodeCount + finalContactCount;
+
+  return {
+    isConfigured,
+    totalSent,
+    totalDelivered,
+    uniqueOpens,
+    uniqueClicks,
+    openRate,
+    clickRate,
+    lists: {
+      protocol: {
+        id: protocolListId,
+        name: 'Protocole du Bâtisseur',
+        count: finalProtocolCount,
+        description: 'Prospects ayant téléchargé le guide gratuit de 6 pages.',
+      },
+      capitalBuyers: {
+        id: capitalListId,
+        name: 'Acheteurs — Le Capital du Bâtisseur',
+        count: finalCapitalCount,
+        description: 'Clients ayant commandé l’ebook de 49 pages via Chariow.',
+      },
+      codeBuyers: {
+        id: codeListId,
+        name: 'Acheteurs — Le Code du Bâtisseur',
+        count: finalCodeCount,
+        description: 'Clients ayant acquis le manuel d’ingénierie personnelle.',
+      },
+      contactPublic: {
+        id: contactListId,
+        name: 'Contacts & Formulaires Publics',
+        count: finalContactCount,
+        description: 'Messages reçus via le formulaire officiel de contact.',
+      },
+    },
+    totalAudience,
+  };
+}
+
+/**
+ * Envoie un email de relance ou campagne marketing via l'API Brevo v3 SMTP
+ */
+export async function sendBrevoMarketingEmail(params: {
+  recipients: Array<{ email: string; name?: string }>;
+  subject: string;
+  message: string;
+  ctaText?: string;
+  ctaUrl?: string;
+}): Promise<{ ok: boolean; count: number; error?: string }> {
+  const apiKey = process.env.BREVO_API_KEY;
+
+  if (!apiKey || apiKey.trim() === '') {
+    return {
+      ok: false,
+      count: 0,
+      error: 'Clé BREVO_API_KEY manquante dans les variables d’environnement.',
+    };
+  }
+
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || 'contact@kheops-set.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kheops-set-ebook-mu.vercel.app';
+  const ctaUrl = params.ctaUrl || `${siteUrl}/ebooks/le-capital-du-batisseur`;
+  const ctaText = params.ctaText || 'ACCÉDER AU PLAN';
+
+  // Formatage HTML luxe et sobre Kheops Set (L'Acier Bienveillant)
+  const paragraphs = params.message
+    .split('\n')
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.8; color: #F3F1EB;">${p}</p>`)
+    .join('');
+
+  const htmlContent = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>${params.subject}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #090909; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #FFFFFF;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #090909; padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 580px; background-color: #151515; border: 1px solid #565A5C; border-top: 3px solid #EEB149;">
+          <!-- En-tête -->
+          <tr>
+            <td style="padding: 32px 32px 20px 32px; border-bottom: 1px solid #222222;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <div style="font-family: 'Courier New', Courier, monospace; font-size: 11px; font-weight: bold; color: #EEB149; letter-spacing: 2px; text-transform: uppercase;">
+                      KHEOPS SET &middot; NOTE TECHNIQUE
+                    </div>
+                    <div style="font-size: 18px; font-weight: bold; color: #FFFFFF; margin-top: 4px; text-transform: uppercase;">
+                      ${params.subject}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Contenu -->
+          <tr>
+            <td style="padding: 32px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+              ${paragraphs}
+
+              <!-- Bouton CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 32px 0 24px 0;">
+                <tr>
+                  <td align="center" style="background-color: #EEB149; padding: 14px 28px;">
+                    <a href="${ctaUrl}" style="color: #090909; font-family: 'Courier New', Courier, monospace; font-size: 12px; font-weight: bold; text-decoration: none; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block;">
+                      ${ctaText} &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #282828; font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #A5A5A0; line-height: 1.6;">
+                KHEOPS SET &middot; L'Acier Bienveillant<br>
+                Une vie est un chantier. Le paraître consomme, le capital construit.
+              </div>
+            </td>
+          </tr>
+
+          <!-- Pied de page -->
+          <tr>
+            <td style="background-color: #090909; padding: 20px 32px; border-top: 1px solid #222222; text-align: center;">
+              <div style="font-family: 'Courier New', Courier, monospace; font-size: 10px; color: #565A5C;">
+                Cet email est réservé aux bâtisseurs inscrits sur Kheops Set.<br>
+                Tu peux te désinscrire à tout moment depuis le lien sécurisé en bas de page.
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  // Brevo SMTP autorise l'envoi vers plusieurs destinataires
+  let sentCount = 0;
+
+  // On envoie par lots de 50 pour respecter les quotas et la sécurité
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < params.recipients.length; i += BATCH_SIZE) {
+    const batch = params.recipients.slice(i, i + BATCH_SIZE);
+
+    const payload = {
+      sender: {
+        name: 'Kheops Set',
+        email: senderEmail,
+      },
+      to: batch.map((r) => ({
+        email: r.email,
+        name: r.name || 'Bâtisseur',
+      })),
+      subject: params.subject,
+      htmlContent,
+    };
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': apiKey,
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+        cache: 'no-store',
+      });
+
+      clearTimeout(timeout);
+
+      if (res.ok) {
+        sentCount += batch.length;
+      } else {
+        const errorText = await res.text();
+        console.error('[Brevo Marketing Send Error]:', errorText);
+      }
+    } catch (err) {
+      console.error('[Brevo Batch Send Exception]:', err);
+    }
+  }
+
+  // Journalisation dans SystemLog
+  try {
+    await prisma.systemLog.create({
+      data: {
+        level: 'INFO',
+        event: 'marketing_manual_relance_sent',
+        message: `Campagne « ${params.subject} » envoyée à ${sentCount} destinataires.`,
+        meta: JSON.stringify({
+          subject: params.subject,
+          recipientsCount: params.recipients.length,
+          deliveredBatches: sentCount,
+        }),
+      },
+    });
+  } catch (e) {
+    console.warn('[Prisma SystemLog save warning]:', e);
+  }
+
+  return {
+    ok: sentCount > 0,
+    count: sentCount,
+    error: sentCount === 0 ? 'Aucun email n’a pu être envoyé via l’API Brevo.' : undefined,
+  };
 }

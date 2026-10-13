@@ -220,6 +220,15 @@ export async function POST(req: NextRequest) {
           status: 'COMPLETED',
         },
       });
+
+      // Notification interne pour le Dashboard admin
+      await prisma.notification.create({
+        data: {
+          message: `Nouvelle commande Chariow : ${validation.productSlug} (${payload.sale?.amount?.value} ${payload.sale?.amount?.currency || 'XAF'}) de ${customerEmail}`,
+          type: 'order',
+          isRead: false,
+        },
+      });
     } catch (dbError) {
       logger.error({
         event: 'chariow_order_db_save_failed',

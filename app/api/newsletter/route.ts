@@ -154,6 +154,15 @@ export async function POST(req: NextRequest) {
           source: 'protocole_du_batisseur',
         },
       });
+
+      // Notification interne pour le Dashboard admin
+      await prisma.notification.create({
+        data: {
+          message: `Nouveau lead Protocole : ${cleanEmail}${cleanFirstName ? ` (${cleanFirstName})` : ''}`,
+          type: 'lead',
+          isRead: false,
+        },
+      });
     }
   } catch (dbError) {
     logger.error({

@@ -216,6 +216,15 @@ export async function POST(req: NextRequest) {
           },
         });
       }
+
+      // Notification interne pour le Dashboard admin
+      await prisma.notification.create({
+        data: {
+          message: `Nouveau message de contact : ${sanitizedPayload.name} (${sanitizedPayload.email}) — « ${sanitizedPayload.subject} »`,
+          type: 'contact',
+          isRead: false,
+        },
+      });
     } catch (dbErr) {
       logger.error({
         event: 'contact_lead_db_save_failed',

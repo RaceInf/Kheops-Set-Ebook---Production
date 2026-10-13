@@ -17,9 +17,16 @@ const NAV_ITEMS = [
   { label: 'Contact', href: '/contact' },
 ];
 
-export function Navbar() {
+export function Navbar({
+  initialBanner,
+}: {
+  initialBanner?: { active: boolean; text?: string | null; link?: string | null };
+} = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [banner, setBanner] = useState<{ active: boolean; text?: string | null; link?: string | null }>(
+    initialBanner ?? { active: false }
+  );
 
   const pathname = usePathname();
   const { openCheckout } = useCheckoutModal();
@@ -36,6 +43,19 @@ export function Navbar() {
   const productSlug = pathname?.includes('le-code-du-batisseur')
     ? 'le-code-du-batisseur'
     : 'le-capital-du-batisseur';
+
+  useEffect(() => {
+    fetch('/api/settings/banner')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.active && data.text) {
+          setBanner(data);
+        } else if (data && !data.active) {
+          setBanner({ active: false });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,11 +90,26 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 border-b border-[#565A5C]/30 bg-[#090909]/88 backdrop-blur-md ${
-        isScrolled ? 'py-2.5' : 'py-3.5'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-200 border-b border-[#565A5C]/30 bg-[#090909]/88 backdrop-blur-md"
     >
-      <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+      {/* Bannière d'Annonce Globale */}
+      {banner.active && banner.text && (
+        <div className="bg-[#EEB149] text-[#090909] text-[11px] font-mono font-bold py-1.5 px-4 text-center border-b border-[#090909] flex items-center justify-center gap-2">
+          <span>{banner.text}</span>
+          {banner.link && (
+            <Link
+              href={banner.link}
+              className="underline hover:opacity-80 transition-opacity ml-1.5 inline-flex items-center gap-1"
+            >
+              <span>Consulter</span> &rarr;
+            </Link>
+          )}
+        </div>
+      )}
+
+      <div className={`mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 transition-all duration-200 ${
+        isScrolled ? 'py-2.5' : 'py-3.5'
+      }`}>
         {/* Zone 1: Brand Title (Single text element wordmark) */}
         <Link
           href="/"

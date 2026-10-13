@@ -68,8 +68,11 @@ export async function getProductWithDbOverride(slug: string): Promise<Product | 
       salePercentage = Math.round(((priceXaf - salePriceXaf) / priceXaf) * 100);
     }
 
+    const coverImage = dbConfig.coverImage || baseProduct.coverImage;
+
     return {
       ...baseProduct,
+      coverImage,
       priceXaf: activePrice,
       originalPriceXaf: isOnSale ? priceXaf : undefined,
       salePriceXaf: salePriceXaf,
@@ -98,6 +101,7 @@ export async function getAllProductsWithDbOverride(): Promise<Product[]> {
       const priceXaf = dbConfig.priceXaf;
       const salePriceXaf = dbConfig.salePriceXaf ?? undefined;
       const activePrice = isOnSale && salePriceXaf ? salePriceXaf : priceXaf;
+      const coverImage = dbConfig.coverImage || baseProduct.coverImage;
 
       let salePercentage: number | undefined = undefined;
       if (isOnSale && salePriceXaf && priceXaf > 0) {
@@ -106,6 +110,7 @@ export async function getAllProductsWithDbOverride(): Promise<Product[]> {
 
       return {
         ...baseProduct,
+        coverImage,
         priceXaf: activePrice,
         originalPriceXaf: isOnSale ? priceXaf : undefined,
         salePriceXaf: salePriceXaf,

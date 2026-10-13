@@ -34,6 +34,9 @@ export async function updateProductConfigAction(
     return { error: 'Le prix promotionnel doit être inférieur au prix de base.' };
   }
 
+  const coverImageStr = formData.get('coverImage') as string | null;
+  const coverImage = coverImageStr && coverImageStr.trim() !== '' ? coverImageStr.trim() : undefined;
+
   try {
     await prisma.productConfig.upsert({
       where: { slug },
@@ -41,6 +44,7 @@ export async function updateProductConfigAction(
         priceXaf,
         salePriceXaf,
         isOnSale: isOnSaleBool,
+        ...(coverImage !== undefined ? { coverImage } : {}),
       },
       create: {
         slug,
@@ -48,6 +52,7 @@ export async function updateProductConfigAction(
         priceXaf,
         salePriceXaf,
         isOnSale: isOnSaleBool,
+        coverImage: coverImage || null,
       },
     });
 

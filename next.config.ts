@@ -47,7 +47,7 @@ const cspDirectives = [
   "default-src 'self'",
   scriptSrc,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.chariowcdn.com",
-  "img-src 'self' data: blob: https://picsum.photos https://drive.google.com https://*.googleusercontent.com https://*.chariowcdn.com https://*.chariow.com",
+  "img-src 'self' data: blob: https://picsum.photos https://drive.google.com https://*.googleusercontent.com https://*.chariowcdn.com https://*.chariow.com https://*.public.blob.vercel-storage.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://www.clarity.ms https://api.chariow.com https://*.chariow.com https://*.mychariow.shop",
   "frame-src 'self' https://challenges.cloudflare.com https://*.chariow.shop https://*.chariow.com https://fovqbyzx.mychariow.shop",
@@ -71,6 +71,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**',
       },

@@ -36,6 +36,7 @@ export default async function AdminEditProductPage({ params }: EditProductPagePr
   const initialPriceXaf = dbConfig ? dbConfig.priceXaf : baseProduct.priceXaf;
   const initialSalePriceXaf = dbConfig ? dbConfig.salePriceXaf : baseProduct.salePriceXaf ?? null;
   const initialIsOnSale = dbConfig ? dbConfig.isOnSale : baseProduct.isOnSale;
+  const initialCoverImage = dbConfig?.coverImage || baseProduct.coverImage;
 
   return (
     <div className="space-y-8">
@@ -44,7 +45,7 @@ export default async function AdminEditProductPage({ params }: EditProductPagePr
           MODIFICATION DU MANUEL
         </h1>
         <p className="text-xs font-mono text-[#A5A5A0] mt-1">
-          Ajuste les montants officiels et applique une réduction tarifaire en temps réel.
+          Ajuste les montants officiels, applique une réduction tarifaire et personnalise l’image de couverture en temps réel.
         </p>
       </div>
 
@@ -54,6 +55,7 @@ export default async function AdminEditProductPage({ params }: EditProductPagePr
         initialPriceXaf={initialPriceXaf}
         initialSalePriceXaf={initialSalePriceXaf}
         initialIsOnSale={initialIsOnSale}
+        initialCoverImage={initialCoverImage}
       />
     </div>
   );

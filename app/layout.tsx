@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from 'next';
+import { headers, cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import Script from 'next/script';
 import { CurrencyProvider } from '@/context/currency-context';
 import { CheckoutModalProvider } from '@/context/checkout-modal-context';
@@ -7,6 +9,7 @@ import { ChariowCheckoutModal } from '@/components/checkout/ChariowCheckoutModal
 import { ScrollToTopButton } from '@/components/ui/scroll-to-top-button';
 import { PrivacyAnalytics } from '@/components/analytics/PrivacyAnalytics';
 import { getValidSiteUrl } from '@/lib/safe-url';
+import { getCachedGlobalSettings } from '@/lib/settings-actions';
 import './globals.css';
 
 const siteUrl = getValidSiteUrl(
@@ -58,11 +61,33 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headerList = await headers();
+  const pathname = headerList.get('x-url-pathname') || '';
+
+  // Vérification Mode Maintenance
+  if (pathname) {
+    const isExempt =
+      pathname.startsWith('/admin') ||
+      pathname.startsWith('/api') ||
+      pathname === '/maintenance';
+
+    const settings = await getCachedGlobalSettings();
+
+    if (!isExempt && settings.maintenanceMode) {
+      const cookieStore = await cookies();
+      const isAdmin = Boolean(cookieStore.get('kheops_admin_session')?.value);
+      if (!isAdmin) {
+        redirect('/maintenance');
+      }
+    } else if (pathname === '/maintenance' && !settings.maintenanceMode) {
+      redirect('/');
+    }
+  }
   return (
     <html lang="fr">
       <head>

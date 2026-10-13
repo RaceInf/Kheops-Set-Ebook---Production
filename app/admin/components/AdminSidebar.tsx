@@ -15,6 +15,10 @@ import {
   ExternalLink,
   Shield,
   Activity,
+  Image as ImageIcon,
+  Send,
+  Bot,
+  Settings,
 } from 'lucide-react';
 import { logoutAdminAction } from '../login/actions';
 
@@ -26,10 +30,14 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Vue d'ensemble", href: '/admin', icon: LayoutDashboard },
+  { label: 'Copilote IA', href: '/admin/copilot', icon: Bot },
   { label: 'Analytics', href: '/admin/analytics', icon: Activity },
+  { label: 'Marketing', href: '/admin/marketing', icon: Send },
+  { label: 'Médiathèque', href: '/admin/media', icon: ImageIcon },
   { label: 'Ventes', href: '/admin/orders', icon: ShoppingCart },
   { label: 'Leads', href: '/admin/leads', icon: Users },
   { label: 'Catalogue', href: '/admin/products', icon: BookOpen },
+  { label: 'Paramètres', href: '/admin/settings', icon: Settings },
   { label: 'Logs Système', href: '/admin/logs', icon: Terminal },
 ];
 

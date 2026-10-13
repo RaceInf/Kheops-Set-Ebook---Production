@@ -42,7 +42,19 @@ model ProductConfig {
   salePriceXaf Int?
   isOnSale     Boolean  @default(false)
   isFeatured   Boolean  @default(false)
+  coverImage   String?
   updatedAt    DateTime @updatedAt
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  name      String
+  url       String   @unique
+  pathname  String?
+  size      Int?
+  mimeType  String?
+  category  String?  @default("general")
+  createdAt DateTime @default(now())
 }
 
 model SystemLog {
@@ -51,5 +63,22 @@ model SystemLog {
   event     String
   message   String
   meta      String?
+  createdAt DateTime @default(now())
+}
+
+model GlobalSettings {
+  id                       String   @id @default("global")
+  maintenanceMode          Boolean  @default(false)
+  announcementBannerText   String?
+  announcementBannerLink   String?
+  announcementBannerActive Boolean  @default(false)
+  updatedAt                DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  isRead    Boolean  @default(false)
+  type      String?  @default("info")
   createdAt DateTime @default(now())
 }
