@@ -61,6 +61,13 @@ const cspDirectives = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  /**
+   * Origines supplémentaires autorisées à charger les ressources du serveur de
+   * développement (HMR, /_next/*) lorsqu'il est accédé via un proxy d'aperçu.
+   * Sans cela, Next.js bloque les requêtes cross-origin et l'aperçu reste blanc.
+   * Concerné : uniquement `next dev` (aucun effet en production).
+   */
+  allowedDevOrigins: ['*.e2b.app', '*.e2b.dev', 'localhost', '127.0.0.1'],
   eslint: {
     ignoreDuringBuilds: true,
   },
