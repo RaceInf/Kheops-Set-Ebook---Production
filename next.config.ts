@@ -36,6 +36,7 @@ const isProd = process.env.NODE_ENV === 'production';
  *   - 'self' https://challenges.cloudflare.com : Iframe du challenge Turnstile.
  * - frame-ancestors :
  *   - 'self' https://*.run.app https://*.google.com https://aistudio.google.com : Prévisualisation AI Studio.
+ *   - https://*.e2b.app : Aperçu live du bac à sable de développement (UNIQUEMENT hors production).
  * - form-action 'self' : Formulaires internes uniquement.
  * - base-uri 'self', object-src 'none'.
  */
@@ -51,7 +52,7 @@ const cspDirectives = [
   "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self' https://challenges.cloudflare.com https://www.google-analytics.com https://www.clarity.ms https://api.chariow.com https://*.chariow.com https://*.mychariow.shop",
   "frame-src 'self' https://challenges.cloudflare.com https://*.chariow.shop https://*.chariow.com https://fovqbyzx.mychariow.shop",
-  "frame-ancestors 'self' https://*.run.app https://*.google.com https://aistudio.google.com",
+  `frame-ancestors 'self' https://*.run.app https://*.google.com https://aistudio.google.com${isProd ? '' : ' https://*.e2b.app'}`,
   "form-action 'self'",
   "base-uri 'self'",
   "object-src 'none'",
@@ -60,6 +61,13 @@ const cspDirectives = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  /**
+   * Origines supplémentaires autorisées à charger les ressources du serveur de
+   * développement (HMR, /_next/*) lorsqu'il est accédé via un proxy d'aperçu.
+   * Sans cela, Next.js bloque les requêtes cross-origin et l'aperçu reste blanc.
+   * Concerné : uniquement `next dev` (aucun effet en production).
+   */
+  allowedDevOrigins: ['*.e2b.app', '*.e2b.dev', 'localhost', '127.0.0.1'],
   eslint: {
     ignoreDuringBuilds: true,
   },
